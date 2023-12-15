@@ -17,7 +17,7 @@ A [statement diagnostics bundle](ui-statements-page.html#diagnostics) contains s
 
 To start recording statement traces during a session, enable the `tracing` session variable via [`SET tracing = on;`](set-vars.html#set-tracing). To stop recording statement traces during a session, disable the `tracing` session variable via [`SET tracing = off;`](set-vars.html#set-tracing).
 
-Recording statement traces during a session does not effect the logical execution of the statements. This means that errors encountered by statements during a recording are returned to clients. CockroachDB will [automatically retry](transactions.html#automatic-retries) individual statements (considered implicit transactions) and multi-statement transactions sent as a single batch when [retry errors](transactions.html#error-handling) are encountered due to contention. Also, clients will receive retry errors required to handle [client-side retries](transactions.html#client-side-intervention). As a result, traces of all transaction retries will be captured during a recording.
+Recording statement traces during a session does not effect the logical execution of the statements. This means that errors encountered by statements during a recording are returned to clients. CockroachDB will [automatically retry](transactions.html#automatic-retries) individual statements (considered implicit transactions) and multi-statement transactions sent as a single batch when [retry errors](transactions.html#error-handling) are encountered due to [contention](performance-best-practices-overview.html#transaction-contention). Also, clients will receive retry errors required to handle [client-side retries](transactions.html#client-side-intervention). As a result, traces of all transaction retries will be captured during a recording.
 
 ## Required privileges
 
@@ -131,7 +131,7 @@ This example uses two terminals concurrently to generate conflicting transaction
     > CREATE TABLE t (k INT);
     ~~~
 
-2. In terminal 1, open a transaction and perform a write without closing the transaction:
+1. In terminal 1, open a transaction and perform a write without closing the transaction:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
@@ -145,14 +145,14 @@ This example uses two terminals concurrently to generate conflicting transaction
 
     Press enter one more time to send these statements to the server.
 
-3. In terminal 2, turn tracing on:
+1. In terminal 2, turn tracing on:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
     > SET tracing = on;
     ~~~
 
-4.  In terminal 2, execute a conflicting read:
+1.  In terminal 2, execute a conflicting read:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
@@ -161,14 +161,14 @@ This example uses two terminals concurrently to generate conflicting transaction
 
     You'll see that this statement is blocked until the transaction in terminal 1 finishes.
 
-4. In terminal 1, finish the transaction:
+1. In terminal 1, finish the transaction:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
     > COMMIT;
     ~~~
 
-5. In terminal 2, you'll see the completed read:
+1. In terminal 2, you'll see the completed read:
 
     ~~~
       k
@@ -177,7 +177,7 @@ This example uses two terminals concurrently to generate conflicting transaction
     (1 row)
     ~~~
 
-6. In terminal 2, stop tracing and then view the completed trace:
+1. In terminal 2, stop tracing and then view the completed trace:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql

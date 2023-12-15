@@ -31,11 +31,11 @@ Parameter | Description
 
 ### Wait policies
 
- Wait policies determine how a `SELECT FOR UPDATE` statement handles conflicts with locks held by other active transactions. By default, `SELECT FOR UPDATE` queries on rows that are already locked by an active transaction must wait for the transaction to finish.
+Wait policies determine how a `SELECT FOR UPDATE` statement handles conflicts with locks held by other active transactions. By default, `SELECT FOR UPDATE` queries on rows that are already locked by an active transaction must wait for the transaction to finish.
 
 Parameter | Description
 ----------|------------
-`SKIP LOCKED` | This syntax is not supported, as skipping locked rows is not yet supported by CockroachDB.
+`SKIP LOCKED` | **New in v22.2:** Skip rows that cannot be immediately locked.
 `NOWAIT` | Return an error if a row cannot be locked immediately.
 
 For documentation on all other parameters of a `SELECT` statement, see [Selection Queries](selection-queries.html).
@@ -43,6 +43,10 @@ For documentation on all other parameters of a `SELECT` statement, see [Selectio
 ## Required privileges
 
 The user must have the `SELECT` and `UPDATE` [privileges](security-reference/authorization.html#managing-privileges) on the tables used as operands.
+
+## Known limitations
+
+{% include {{page.version.version}}/sql/select-for-update-limitations.md %}
 
 ## Examples
 

@@ -30,8 +30,7 @@ Leakproof | The function does not depend on configuration settings and is guaran
 
 ## Conditional and function-like operators
 
-The following table lists the operators that look like built-in
-functions but have special evaluation rules:
+The following table lists the operators that look like built-in functions but have special evaluation rules:
 
  Operator | Description
 ----------|-------------
@@ -45,6 +44,10 @@ functions but have special evaluation rules:
  `IFNULL(...)` | Alias for `COALESCE` restricted to two operands
  `NULLIF(...)` | [Return `NULL` conditionally](scalar-expressions.html#nullif-expressions)
  `ROW(...)` | [Tuple Constructor](scalar-expressions.html#tuple-constructors)
+
+## User-defined functions
+
+{% include_cached new-in.html version="v22.2" %}  In addition to the built-in functions described in the following sections, CockroachDB supports user-defined functions. For details, see [User-Defined Functions](user-defined-functions.html).
 
 ## Built-in functions
 
@@ -78,11 +81,12 @@ The following table lists all CockroachDB operators from highest to lowest prece
 | 5 | `*` | Multiplication | binary |
 |   | `/` | Division | binary |
 |   | `//` | Floor division | binary |
-|   | `%` | Modulo | binary |
+|   | `%` | Modulo, or text similarity when accessing a `STRING` column. For more information, see [Trigram Indexes](trigram-indexes.html#comparisons). | binary |
 | 6 | `+` | Addition | binary |
 |   | `-` | Subtraction | binary |
 | 7 | `<<` | Bitwise left-shift | binary |
 |   | `>>` | Bitwise right-shift | binary |
+|   | `&&` | Overlaps | binary |
 | 8 | `&` | Bitwise AND | binary |
 | 9 | `#` | Bitwise XOR | binary |
 | 10 | <code>&#124;</code> | Bitwise OR | binary |
@@ -97,8 +101,8 @@ The following table lists all CockroachDB operators from highest to lowest prece
 |    | `[NOT] ILIKE ANY`, `[NOT] ILIKE SOME`, `[NOT] ILIKE ALL` | [Multi-valued] `ILIKE` comparison | binary |
 |    |  `->` | Access a JSONB field, returning a JSONB value. | binary |
 |    |  `->>` | Access a JSONB field, returning a string. | binary |
-|    |  `@>` | Tests whether the left JSONB field contains the right JSONB field. | binary |
-|    |  `>@` | Tests whether the left JSONB field is contained by the right JSONB field. | binary |
+|    |  `@>` | Tests whether the left JSONB or array field contains the right JSONB or array field. | binary |
+|    |  `>@` | Tests whether the left JSONB or array field is contained by the right JSONB or array field. | binary |
 |    |  `#>` | Access a JSONB field at the specified path, returning a JSONB value. | binary |
 |    |  `#>>` | Access a JSONB field at the specified path, returning a string. | binary |
 |    |  `?` | Does the key or element string exist within the JSONB value? | binary |

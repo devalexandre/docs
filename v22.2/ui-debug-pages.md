@@ -13,6 +13,10 @@ The **Advanced Debug** page of the DB Console provides links to advanced monitor
 These pages are experimental and undocumented. If you find an issue, let us know through [these channels](https://www.cockroachlabs.com/community/).
  {{site.data.alerts.end}}
 
+## Required privileges
+
+To view the **Advanced Debug** page, and work with the debugging and profiling endpoints hosted on this page, the user must be a member of the `admin` role or must have the `VIEWDEBUG` [system privilege](security-reference/authorization.html#supported-privileges) defined.
+
 ## License and node information
 
 On the right-side of the page, the following information is displayed:
@@ -27,7 +31,7 @@ The following debug reports are useful for monitoring and troubleshooting Cockro
 Report | Description | Access level
 --------|-----|--------
 [Custom Time Series Chart](ui-custom-chart-debug-page.html) | Create a custom chart of time series data. | All users.
-Problem Ranges | View ranges in your cluster that are unavailable, under-replicated, slow, or have other problems. | [`admin` users only on secure clusters](ui-overview.html#db-console-access).
+Problem Ranges | View ranges in your cluster that are unavailable, under-replicated, slow, paused, or have other problems. | [`admin` users only on secure clusters](ui-overview.html#db-console-access).
 Data Distribution and Zone Configs | View the distribution of table data across nodes and verify zone configuration. | [`admin` users only on secure clusters](ui-overview.html#db-console-access).
 Statement Diagnostics History  | Diagnostic bundles for all statements executed on the cluster.  | [`admin` users only on secure clusters](ui-overview.html#db-console-access).
 

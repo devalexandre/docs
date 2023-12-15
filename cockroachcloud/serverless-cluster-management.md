@@ -22,7 +22,7 @@ For each cluster, the following details display:
 - The cluster's cloud provider, either GCP or AWS
 - The **Version** of CockroachDB the cluster is running
 - The **Action** button, which is used to:
-    - [**Edit spend limit**](#edit-your-spend-limit)
+    - [**Edit resource limits**](#edit-your-resource-limits)
     - [**Delete cluster**](#delete-cluster)
 
 To view and manage a specific cluster, click the name of the cluster. The [**Overview**](#view-cluster-overview) page will display.
@@ -31,8 +31,8 @@ To view and manage a specific cluster, click the name of the cluster. The [**Ove
 
 The **Overview** page displays details about the selected {{ site.data.products.serverless }} cluster:
 
-- The **Cluster settings** section, including **Cloud provider**, **Plan type**, and **Region**
-- The **Usage this month** section, including the **Spend limit**, **Storage**, and **Request Units**
+- The **Cluster settings** section, including **Cloud provider**, **Plan type**, and **Regions**
+- The **Usage this month** section, including the **Resource limits**, **Storage**, and **Request Units**
 - The cluster's **Current activity**
 - Time-series graphs of the cluster's **Storage usage**, **Request Units**, and **SQL statements**
 
@@ -49,35 +49,77 @@ The monthly cost estimate is calculated using simple extrapolation that assumes 
 1. In the **Usage this month** section of your cluster's [**Overview** page](cluster-overview-page.html), click **Estimate usage cost**.
 1. Select a time frame in which your workload was active.
 
-    Your used [RUs](learn-about-request-units.html), used storage, and spend from the selected time frame will be shown along with your monthly cost estimate. The spend and cost estimate do not account for the [free resources](learn-about-pricing.html#free-vs-paid-usage) granted to every {{ site.data.products.serverless }} cluster, which you would have to use up before being charged.
+    Your used [RUs](learn-about-request-units.html), used storage, and spend from the selected time frame will be shown along with your monthly cost estimate. The spend and cost estimate do not account for the [free resources](learn-about-pricing.html#free-vs-paid-usage) granted to every organization, which you would have to use up before being charged.
 
-## Edit your spend limit
+## Edit your resource limits
 
-You can edit your spend limit from the **Overview** page. The change in your spend limit will affect current and upcoming billing cycles. See [Planning your cluster](plan-your-cluster.html) for more information on resource usage.
+You can edit your [resource limits](../{{site.versions["stable"]}}/architecture/glossary.html#resource-limits) from the **Overview** page. The change in your resource limits will affect current and upcoming billing cycles. See [Planning your cluster](plan-your-cluster.html) for more information on resource usage.
 
 1. Navigate to the **Overview** page for the cluster you want to edit.
-1. Click the pencil icon (or **Add a spend limit** if you haven't set one before) next to your **Spend limit** in the **Usage this month** section.
+1. Click the pencil icon (or **Add resource limits** if you haven't set one before) next to your **Resource limits** in the **Usage this month** section.
 
     You will be taken to the **Edit cluster** page, which shows a graph of your cluster's **Recommended budget** compared to your current budget.
 
-1. Enter a new **Spend limit**.
+1. Enter new **Resource limits**.
 
 1. Click **Update**.
+
+{% comment %}
+## Add or remove regions from a cluster
+
+You can add or remove up to six regions at a time through the Console. 
+
+{{site.data.alerts.callout_info}}
+You can only add regions to clusters created after May 16, 2023.
+{{site.data.alerts.end}}
+
+## Add a region
+
+To add regions to your cluster:
+
+1. Navigate to the cluster's **Overview** page.
+1. Select **Actions > Edit cluster**.
+
+    The **Edit cluster** page displays.
+
+1. Click **Add a region**.
+1. From the **Choose a region** dropdown, select the region you want to use.
+1. In the **Summary** sidebar, verify the hourly estimated cost for the cluster.
+1. Click **Continue to payment**.
+1. In the **Confirmation** dialog, verify your new cluster configuration.
+1. Click **OK**.
+
+### Remove a region
+
+To remove regions from your cluster:
+
+1. Navigate to the cluster's **Overview** page.
+1. Select **Actions > Edit cluster**.
+
+    The **Edit cluster** page displays.
+
+1. Click the **X** button next to each region you want to remove.
+1. In the **Summary** sidebar, verify the hourly estimated cost for the cluster.
+1. Click **Continue to payment**.
+1. In the **Confirmation** dialog, verify your new cluster configuration.
+1. Click **OK**.
+{% endcomment %}
 
 ## Create a database
 
 You can use the [**Databases** page](databases-page.html) to create a new database from the {{ site.data.products.db }} Console.
 
-1. Navigate to the **Databases** page from the **Overview** page of your cluster.
+1. Select your cluster to navigate to the cluster [**Overview** page](cluster-overview-page.html).
+1. Click **Databases** in the **Data** section of the left side navigation.
 1. Click **Add database**.
 1. Enter a name for the new database.
 1. Click **Create**.
 
 ## Restore data from a backup
 
-Use the [**Backups** page](backups-page.html) to restore your cluster from automatic full cluster backups.
+Use the [Managed-Service Backups](use-managed-service-backups.html) to restore your cluster from automatic full cluster backups.
 
-You can also [backup and restore](run-bulk-operations.html#backup-and-restore-data) your {{ site.data.products.serverless }} cluster manually. If you don't have [billing information on file](billing-management.html) for your organization, you can take [backups locally](run-bulk-operations.html#backup-and-restore-data) to `userfile`. Once you enter billing information, even if you don't set a spend limit, you can also [backup to cloud storage](run-bulk-operations.html?filters=cloud#backup-and-restore-data).
+You can also [back up and restore](take-and-restore-customer-owned-backups.html) your {{ site.data.products.serverless }} cluster manually. You can take [backups locally](take-and-restore-customer-owned-backups.html#back-up-data) to [`userfile`](../{{site.current_cloud_version}}/use-userfile-storage.html) or [back up to cloud storage](take-and-restore-customer-owned-backups.html?filters=cloud#back-up-data).
 
 ## Delete cluster
 

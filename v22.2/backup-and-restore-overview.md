@@ -7,7 +7,8 @@ docs_area: manage
 
 This page provides an overview of the backup and restore features available in CockroachDB:
 
-- [Backup and restore types](#backup-and-restore-types) and their product availability
+- [Types of backup available in CockroachDB](#cockroachdb-backup-types)
+- [Backup and restore product support](#backup-and-restore-product-support)
 - [SQL statements](#backup-and-restore-sql-statements) for working with backups and restores
 - [Storage](#backup-storage) for backups
 
@@ -15,23 +16,27 @@ You can create full or incremental backups of a [cluster](backup.html#backup-a-c
 
 For an explanation of how a backup works, see [Backup Architecture](backup-architecture.html).
 
-## Backup and restore types
+## CockroachDB backup types
 
-The following table outlines the available backup and restore types in CockroachDB. See each of the pages linked in the table for usage examples:
+{% include cockroachcloud/backup-types.md %} 
 
-Backup / Restore Type             | Description                                                                                                                                                  | Product                                                                                                                                                                                                                                                                                    |
------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-[Full backup](take-full-and-incremental-backups.html)                       | An un-replicated copy of your cluster, database, or table's data. A full backup is the base for any further backups.                                         | All products
-[Incremental backup](take-full-and-incremental-backups.html)               | A copy of the changes in your data since the specified base backup (a full or full and incremental).                                                         | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)
-[Backups with revision history](take-backups-with-revision-history-and-restore-from-a-point-in-time.html)     | A backup with revision history allows you to back up every change made within the garbage collection period leading up to and including the given timestamp. | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)
-[Point-in-time restore](take-backups-with-revision-history-and-restore-from-a-point-in-time.html)             | A restore from an arbitrary point in time within the revision history of a backup.                                                                           | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)   
-[Encrypted backup and restore](take-and-restore-encrypted-backups.html)      | An encrypted backup using a KMS or passphrase.                                                                                                               | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)
-[Locality-aware backup and restore](take-and-restore-locality-aware-backups.html) | A backup where each node writes files only to the backup destination that matches the node locality configured at node startup.                              | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)
-[Scheduled backup](manage-a-backup-schedule.html)                  | A schedule for periodic backups.                                                                                                                             | {{ site.data.products.dedicated }}<br>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)  
-[Automated backup](../cockroachcloud/backups-page.html)                 | Cockroach Labs runs full backups daily and incremental backups hourly for every CockroachDB Cloud cluster.                                                   | {{ site.data.products.db }} clusters                                                                                                                                     
+## Backup and restore product support
+
+This table outlines the level of product support for backup and restore features in CockroachDB. See each of the pages linked in the table for usage examples:
+
+Backup / Restore  | Description  | Product Support 
+------------------+--------------+-----------------
+[Full backup](take-full-and-incremental-backups.html) | An un-replicated copy of your cluster, database, or table's data. A full backup is the base for any further backups. | <ul><li>All products (Enterprise license not required)</li><ul>
+[Incremental backup](take-full-and-incremental-backups.html) | A copy of the changes in your data since the specified base backup (either a full backup or a full backup plus an incremental backup). | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — managed-service backups and customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul>
+[Scheduled backup](manage-a-backup-schedule.html) | A schedule for periodic backups. | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul>
+[Backups with revision history](take-backups-with-revision-history-and-restore-from-a-point-in-time.html) | A backup with revision history allows you to back up every change made within the garbage collection period leading up to and including the given timestamp. | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul>
+[Point-in-time restore](take-backups-with-revision-history-and-restore-from-a-point-in-time.html) | A restore from an arbitrary point in time within the revision history of a backup. | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul>
+[Encrypted backup and restore](take-and-restore-encrypted-backups.html) | An encrypted backup using a KMS or passphrase. | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul>
+[Locality-aware backup and restore](take-and-restore-locality-aware-backups.html) | A backup where each node writes files only to the backup destination that matches the node locality configured at node startup. | <ul><li>{{ site.data.products.serverless }} — customer-owned backups</li><li>{{ site.data.products.dedicated }} — customer-owned backups</li><li>{{ site.data.products.core }} with an [{{ site.data.products.enterprise }} license](enterprise-licensing.html)</li><ul> 
+
+{% include {{ page.version.version }}/backups/scheduled-backups-tip.md %}
+
 ## Backup and restore SQL statements
-
-The following table outlines SQL statements you can use to create, configure, pause, and show backup and restore jobs:
 
 The following table outlines SQL statements you can use to create, configure, pause, and show backup and restore jobs:
 
@@ -46,6 +51,7 @@ The following table outlines SQL statements you can use to create, configure, pa
 [`RESTORE`](restore.html)      | Restore full and incremental backups.
 [`ALTER BACKUP`](alter-backup.html) | Add a new [KMS encryption key](take-and-restore-encrypted-backups.html#use-key-management-service) to an encrypted backup.
 [`CREATE SCHEDULE FOR BACKUP`](create-schedule-for-backup.html) | Create a schedule for periodic backups.
+[`ALTER BACKUP SCHEDULE`](alter-backup-schedule.html) | Alter an existing backup schedule.
 [`SHOW SCHEDULES`](show-schedules.html) | View information on backup schedules.
 [`PAUSE SCHEDULES`](pause-schedules.html) | Pause backup schedules.
 [`RESUME SCHEDULES`](resume-schedules.html) | Resume paused backup schedules.
@@ -53,15 +59,27 @@ The following table outlines SQL statements you can use to create, configure, pa
 
 ## Backup storage
 
-We recommend taking backups to [cloud storage](use-cloud-storage-for-bulk-operations.html) and enabling object locking to protect the validity of your backups. CockroachDB supports Amazon S3, Azure Storage, and Google Cloud Storage for backups. Read the following usage information:
+We recommend taking backups to [cloud storage](use-cloud-storage.html) and enabling object locking to protect the validity of your backups. CockroachDB supports Amazon S3, Azure Storage, and Google Cloud Storage for backups. Read the following usage information:
 
-- [Example file URLs](use-cloud-storage-for-bulk-operations.html#example-file-urls) to form the URL that you pass to `BACKUP` and `RESTORE` statements.
-- [Authentication](use-cloud-storage-for-bulk-operations.html#authentication) to set up authentication to a cloud storage bucket and include those credentials in the URL.
+- [Example file URLs](use-cloud-storage.html#example-file-urls) to form the URL that you pass to `BACKUP` and `RESTORE` statements.
+- [Authentication](cloud-storage-authentication.html) to set up authentication to a cloud storage bucket and include those credentials in the URL.
 
 For detail on additional cloud storage features CockroachDB supports:
 
-- [Object locking](use-cloud-storage-for-bulk-operations.html#object-locking) to prevent backups from being overwritten or deleted.
-- [Storage Class (AWS S3 only)](use-cloud-storage-for-bulk-operations.html#amazon-s3-storage-classes) to set a specific storage class for your backups.
+- [Object locking](use-cloud-storage.html#object-locking) to prevent backups from being overwritten or deleted.
+- [Storage Class (AWS S3 only)](use-cloud-storage.html#amazon-s3-storage-classes) to set a specific storage class for your backups.
+
+{% include {{ page.version.version }}/misc/note-egress-perimeter-cdc-backup.md %}
+
+## Backup and restore observability
+
+You can verify that your stored backups are restorable with backup validation. While a successful restore completely validates a backup, the validation tools offer a faster alternative and return an error message if a backup is not valid. There are three "levels" of verifying backups that give increasing validation coverage depending on the amount of runtime you want to invest in validating backups.
+
+See the [Backup Validation](backup-validation.html) page for detail and examples.
+
+You can track backup jobs using metrics that cover scheduled backups, status of running jobs, and details on completed or failed jobs. You can alert on these metrics via the Prometheus endpoint or the Datadog integration.
+
+See the [Backup and Restore Monitoring](backup-and-restore-monitoring.html) page for product availability and a list of the available metrics.
 
 ## See also
 

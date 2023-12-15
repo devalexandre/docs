@@ -7,6 +7,12 @@ docs_area: manage
 
 To prevent denial-of-service and brute force password attacks, {{ site.data.products.dedicated }} requires you to authorize networks that can access your cluster by [allowlisting the public IP addresses](#ip-allowlisting) for your application. Optionally, you can [set up Virtual Private Cloud (VPC) peering](#vpc-peering) or [AWS PrivateLink](#aws-privatelink) for your cluster for enhanced network security and lower network latency.
 
+For additional cluster security, you can learn more about [Private Clusters (Preview)](private-clusters.html). A private cluster's nodes have no public IP addresses.
+
+{{site.data.alerts.callout_success}}
+During [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html), neither Azure Private Link nor private clusters are available for {{ site.data.products.dedicated }} clusters on Azure. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
+{{site.data.alerts.end}}
+
 ## IP allowlisting
 
 Authorize your application server’s network and your local machine’s network by [adding their public IP addresses (in the CIDR format) to the {{ site.data.products.dedicated }} cluster's allowlist](connect-to-your-cluster.html#step-1-authorize-your-network). If you change your location, you will need to authorize the new location’s network, else the connection from that network will be rejected.
@@ -20,6 +26,10 @@ While developing and testing your application, you may add `0.0.0.0/0` to the al
 
 You can add up to 20 IP addresses to your allowlist. If your application servers’ IP addresses are not static, or you want to limit your cluster's exposure to the public network, you can connect to your {{ site.data.products.dedicated }} clusters using VPC Peering or AWS PrivateLink instead.
 
+{{site.data.alerts.callout_success}}
+During [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html), neither Azure Private Link nor private clusters are available for {{ site.data.products.dedicated }} clusters on Azure. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
+{{site.data.alerts.end}}
+
 ## VPC peering
 
 If you select GCP as your cloud provider while [creating your {{ site.data.products.dedicated }} cluster](create-your-cluster.html), you can use [Google Cloud's VPC Network Peering](https://cloud.google.com/vpc/docs/vpc-peering) feature to connect your GCP application directly to your {{ site.data.products.dedicated }} cluster using internal IP addresses, thus limiting exposure to the public network and reducing network latency.
@@ -32,7 +42,7 @@ Setting up a VPC peering connection between your {{ site.data.products.dedicated
 1. [Establish a VPC Peering connection after creating the cluster](connect-to-your-cluster.html#establish-vpc-peering-or-aws-privatelink)
 
 {{site.data.alerts.callout_info}}
-Self-service VPC peering setup is not supported for {{ site.data.products.dedicated }} clusters deployed before March 5, 2020. If your cluster was deployed before March 5, 2020, you will have to [create a new cluster](create-your-cluster.html) with VPC peering enabled, then [export your data](backups-page.html) from the old cluster to the new cluster. If your cluster was deployed on or after March 5, 2020, it will be locked into {{ site.data.products.dedicated }}'s default IP range (`172.28.0.0/14`) unless you explicitly configured a different IP range during cluster creation.
+Self-service VPC peering setup is not supported for {{ site.data.products.dedicated }} clusters deployed before March 5, 2020. If your cluster was deployed before March 5, 2020, you will have to [create a new cluster](create-your-cluster.html) with VPC peering enabled, then [export your data](use-managed-service-backups.html) from the old cluster to the new cluster. If your cluster was deployed on or after March 5, 2020, it will be locked into {{ site.data.products.dedicated }}'s default IP range (`172.28.0.0/14`) unless you explicitly configured a different IP range during cluster creation.
 {{site.data.alerts.end}}
 
 ## AWS PrivateLink
@@ -97,13 +107,13 @@ Use either the Amazon VPC Console or the [AWS Command Line Interface (CLI)](http
 1.  In the **Security group** section, select the security group you created in [Step 8](#step-8) and uncheck the box for **default** security group.
 1.  Click **Create Endpoint**.
 
-      The VPC Endpoint ID displays.  
+      The VPC Endpoint ID displays.
 
 1.  Copy the Endpoint ID to your clipboard and return to {{ site.data.products.db }}'s **Add PrivateLink** modal.
 
-  </section>
+</section>
 
-  <section class="filter-content" markdown="1" data-scope="aws-cli">
+<section class="filter-content" markdown="1" data-scope="aws-cli">
 
 1.  Substitute the values from the previous steps and run the following AWS CLI command:
 
@@ -152,5 +162,5 @@ After a short (less than 5 minute) delay, the status will change to Available. Y
 
 ## See also
 
-- [Client Connection Parameters](../{{site.versions["stable"]}}/connection-parameters.html)
+- [Client Connection Parameters](../{{site.current_cloud_version}}/connection-parameters.html)
 - [Connect to Your {{ site.data.products.dedicated }} Cluster](connect-to-your-cluster.html)

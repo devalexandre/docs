@@ -69,7 +69,7 @@ Flag | Description
 `--pid-file` | The file to which the node's process ID will be written as soon as the node is ready to accept connections. When `--background` is used, this happens before the process detaches from the terminal. When this flag is not set, the process ID is not written to file.
 <a name="flags-store"></a> `--store`<br>`-s` | The file path to a storage device and, optionally, store attributes and maximum size. When using multiple storage devices for a node, this flag must be specified separately for each device, for example: <br><br>`--store=/mnt/ssd01 --store=/mnt/ssd02` <br><br>For more details, see [Store](#store) below.
 <a name="flags-spatial-libs"></a>`--spatial-libs` |  The location on disk where CockroachDB looks for [spatial](spatial-features.html) libraries.<br/><br/>**Defaults:** <br/><ul><li>`/usr/local/lib/cockroach`</li><li>A `lib` subdirectory of the CockroachDB binary's current directory.</li></ul><br/>
-`--temp-dir` <a name="temp-dir"></a> | The path of the node's temporary store directory. On node start up, the location for the temporary files is printed to the standard output. <br><br>**Default:** Subdirectory of the first [store](#store)
+`--temp-dir` <a name="temp-dir"></a> | The path of the node's temporary store directory. The temporary store directory is used primarily as working memory for distributed computations and importing from CSV data sources. On node start-up, the location for the temporary files is printed to the standard output. <br><br>**Default:** Subdirectory of the first [store](#store)
 
 ### Networking
 
@@ -631,12 +631,12 @@ $ cockroach start --sql-addr=:26257 --listen-addr=:26258 --join=node1:26258,node
 
 Note the use of port `26258` (the value for `listen-addr`, not `sql-addr`) in the `--join` flag. Also, if your environment requires the use of the `--advertise-addr` flag, you should probably also use the `--advertise-sql-addr` flag when using a separate SQL address.
 
-Clusters using this configuration with client certificate authentication may also wish to use [split client CA certificates](https://www.cockroachlabs.com/docs/v20.1/create-security-certificates-custom-ca.html#split-ca-certificates).
+Clusters using this configuration with client certificate authentication may also wish to use [split client CA certificates](../v20.1/create-security-certificates-custom-ca.html#split-ca-certificates).
 
 ## See also
 
 - [Initialize a Cluster](cockroach-init.html)
 - [Manual Deployment](manual-deployment.html)
-- [Orchestrated Deployment](orchestration.html)
+- [Orchestrated Deployment](kubernetes-overview.html)
 - [Local Deployment](start-a-local-cluster.html)
 - [Other Cockroach Commands](cockroach-commands.html)

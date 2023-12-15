@@ -3,6 +3,7 @@ title: Use the Cloud API
 summary: The Cloud API is used to manage clusters within an organization
 toc: true
 docs_area: manage
+cloud: true
 ---
 
 The Cloud API is a [REST interface](https://en.wikipedia.org/wiki/Representational_state_transfer) that allows you programmatic access to manage the lifecycle of clusters within your organization.
@@ -13,7 +14,7 @@ Refer to the [full API reference documentation](../api/cloud/v1.html) for detail
 
 ## Call the API
 
-The API uses [bearer token authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/), and each request requires a [secret key](console-access-management.html#api-access). The secret key is associated with a service account, and inherits the [permissions of the account](console-access-management.html#service-accounts).
+The API uses [bearer token authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/), and each request requires a [secret key](managing-access.html#api-access). The secret key is associated with a service account, and inherits the [permissions of the account](managing-access.html#manage-service-accounts).
 
 To send the secret key when making an API call, add the secret key to the `Authorization` HTTP header sent with the request.
 
@@ -42,7 +43,7 @@ Authorization: Bearer {secret_key}
 
 </section>
 
-Where `{secret_key}` is the [secret key string you stored when you created the API key in the Console](console-access-management.html#create-api-keys).
+Where `{secret_key}` is the [secret key string you stored when you created the API key in the Console](managing-access.html#create-api-keys).
 
 ## Set the API version
 
@@ -73,11 +74,15 @@ Cc-Version: {version}
 ~~~
 </section>
 
-Where `{secret_key}` is the [secret key string you stored when you created the API key in the Console](console-access-management.html#create-api-keys) and `{version}` is the version of the Cloud API.
+Where `{secret_key}` is the [secret key string you stored when you created the API key in the Console](managing-access.html#create-api-keys) and `{version}` is the version of the Cloud API.
 
 ## Create a new cluster
 
-To create a cluster, send a `POST` request to the `/v1/clusters` endpoint. The service account associated with the secret key must have `ADMIN` or `CREATE` [permission](console-access-management.html#service-accounts) to create new clusters.
+To create a cluster, send a `POST` request to the `/v1/clusters` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Creator [role](authorization.html#organization-user-roles), or the `ADMIN` or `CREATE` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 <div class="filters clearfix">
     <button class="filter-button page-level" data-scope="curl"><strong>curl</strong></button>
@@ -119,7 +124,7 @@ curl --request POST \
 Where:
 
   - `{cluster_name}` is the name of the cluster. This should be a short string with no whitespace.
-  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP` and `AWS`.
+  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP`, `AWS`, `AZURE` Support for Azure is in [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html), and Serverless clusters cannot be created on Azure. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
   - `{region_name}` is the zone code of the cloud infrastructure provider. For example, on GCP you can set the "us-west2" zone code.
   - `{spend_limit}` is the [maximum amount of money, in US cents, you want to spend per month](plan-your-cluster.html) on this cluster.
 
@@ -198,7 +203,7 @@ If the request was successful, the API will return information about the newly c
 
 Where:
 
-  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP` and `AWS`.
+  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP`, `AWS`, `AZURE`.
   - `{cluster_id}` is the unique ID of this cluster. Use this ID when making API requests for this particular cluster.
     {{site.data.alerts.callout_info}}
     The cluster ID used in the Cloud API is different than the routing ID used when [connecting to clusters](connect-to-a-serverless-cluster.html).
@@ -211,7 +216,11 @@ Where:
 
 ## Get information about a specific cluster
 
-To retrieve detailed information about a specific cluster, make a `GET` request to the `/v1/clusters/{cluster_id}` endpoint. The service account associated with the secret key must have `ADMIN` or `READ` [permission](console-access-management.html#service-accounts) to retrieve information about an organization's clusters.
+To retrieve detailed information about a specific cluster, make a `GET` request to the `/v1/clusters/{cluster_id}` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `Read` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -269,7 +278,7 @@ Where:
   The cluster ID used in the Cloud API is different than the routing ID used when [connecting to clusters](connect-to-a-serverless-cluster.html).
   {{site.data.alerts.end}}
   - `{cluster_name}` is the name of the cluster you specified when creating the cluster.
-  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP` and `AWS`.
+  - `{cloud_provider}` is the name of the cloud infrastructure provider on which you want your cluster to run. Possible values are: `GCP`, `AWS`, `AZURE`. Support for Azure is in [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html). Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
   - `{account_id}` is the ID of the account that created the cluster. If the cluster was created using the API, this will be the service account ID associated with the secret key used when creating the cluster.
   - `{region_name}` is the cloud infrastructure provider region where the cluster is located.
   - `{spend_limit}` is the [maximum amount of money, in US cents, you want to spend per month](plan-your-cluster.html) on this cluster.
@@ -278,7 +287,12 @@ Where:
 
 ## Get information about a cluster's nodes
 
-To retrieve information about a cluster's nodes, including the node status, make a `GET` request to the `/v1/clusters/{cluster_id}/nodes` endpoint. The service account associated with the secret key must have `ADMIN` or `READ` [permission](console-access-management.html#service-accounts) to retrieve information about an organization's clusters.
+To retrieve information about a cluster's nodes, including the node status, make a `GET` request to the `/v1/clusters/{cluster_id}/nodes` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `READ` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
+
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -324,9 +338,15 @@ Where:
 - `{region_name}` is the cloud infrastructure provider region where the cluster is located.
 - `{status}` is the status of the node. Possible values are: `LIVE` and `NOT_READY`.
 
-## Set the maximum spend limit of a Serverless cluster
+## Set the maximum resource limits of a Serverless cluster
 
-To set the maximum spend limit for a Serverless cluster, send a `PUT` request to the `/v1/clusters/{cluster_id}/spend-limit` endpoint. The service account associated with the secret key must have `ADMIN` or `EDIT` [permission](console-access-management.html#service-accounts) to retrieve information about an organization's clusters.
+To set the maximum [resource limits](../{{site.versions["stable"]}}/architecture/glossary.html#resource-limits) for a Serverless cluster, send a `PUT` request to the `/v1/clusters/{cluster_id}/spend-limit` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `READ` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
+
+The service account associated with the secret key must have `ADMIN` or `EDIT` [permission](managing-access.html#manage-service-accounts) to retrieve information about an organization's clusters.
 
 <div class="filters clearfix">
     <button class="filter-button page-level" data-scope="curl"><strong>curl</strong></button>
@@ -369,7 +389,11 @@ If the request was successful, the client will not receive a response payload.
 
 ## Delete a cluster
 
-To delete a cluster, send a `DELETE` request to the `/v1/clusters/{cluster_id}` endpoint. The service account associated with the secret key must have `ADMIN` or `DELETE` [permission](console-access-management.html#service-accounts) to delete an organization's clusters.
+To delete a cluster, send a `DELETE` request to the `/v1/clusters/{cluster_id}` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Creator [role](authorization.html#organization-user-roles), or the `ADMIN` or `DELETE` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 Deleting a cluster will permanently delete the cluster and all the data within the cluster.
 
@@ -390,9 +414,65 @@ Where:
 
 If the `DELETE` request was successful the client will not receive a response payload.
 
+<a id="cloud-audit-logs"></a>
+
+## Export Cloud Organization audit logs
+
+{{site.data.alerts.callout_info}}
+{% include_cached feature-phases/limited-access.md %}
+{{site.data.alerts.end}}
+
+To export audit logs for activities and events related to your Cloud organization, send a `GET` request to the `/v1/auditlogevents` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator [role](authorization.html#organization-user-roles), or the `ADMIN` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
+
+{% include_cached copy-clipboard.html %}
+~~~ shell
+curl --request GET \
+  --url 'https://cockroachlabs.cloud/api/v1/auditlogevents?starting_from={timestamp}&sort_order={sort_order}&limit={limit}' \
+  --header 'Authorization: Bearer {secret_key}' \
+  --header 'Cc-Version: {api_version}'
+~~~
+
+Where:
+
+  - `{timestamp}` is an [RFC3339 timestamp](https://www.ietf.org/rfc/rfc3339.txt) that indicates the first log entry to fetch. If unspecified, defaults to the time when the Cloud organization was created if `{sort_order}` is `ASC`, or the current time if `{sort_order}` is `DESC`.
+  - `{sort_order}` is either `ASC` (the default) or `DESC`.
+  - `{limit}` indicates roughly how many entries to return. If any entries would be returned for a timestamp, all entries for that timestamp are always returned. Defaults to `200`.
+  - `{api_version}` is the [Cloud API version](#set-the-api-version).
+
+A request that includes no parameters exports roughly 200 entries in ascending order, starting from when your {{ site.data.products.db }} organization was created.
+
+If the request was successful, the client will receive a JSON array consisting of a list of log `entries` and, depending on the circumstances, a `next_starting_from` field.
+
+- If `{sort_order}` is `ASC`, `next_starting_from` is always returned.
+- If `{sort_order}` is `DESC`, then `next_starting_from` is returned as long as earlier audit logs are available. It is not returned when the earliest log entry is reached (when the {{ site.data.products.db }} organization was created).
+
+
+{% include_cached copy-clipboard.html %}
+~~~ json
+{
+  "entries": [
+    "{entry_array}"
+  ],
+  "next_starting_from": "{timestamp}"
+}
+~~~
+
+Where:
+
+  - `{entry_array}` is a structured JSON array of audit log entries.
+  - `{timestamp}` indicates the timestamp to send to export the next batch of results.
+
 ## List all clusters in an organization
 
-To list all active clusters within an organization, send a `GET` request to the `/v1/clusters` endpoint. The service account associated with the secret key must have `ADMIN` or `READ` [permission](console-access-management.html#service-accounts) to list an organization's clusters.
+To list all active clusters within an organization, send a `GET` request to the `/v1/clusters` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `READ` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -461,14 +541,18 @@ Where:
   The cluster ID used in the Cloud API is different than the routing ID used when [connecting to clusters](connect-to-a-serverless-cluster.html).
   {{site.data.alerts.end}}
   - `{cluster_name}` is the name of the cluster.
-  - `{cloud_provider}` is the name of the cloud infrastructure provider. Possible values are: `GCP` and `AWS`.
+  - `{cloud_provider}` is the name of the cloud infrastructure provider. Possible values are: `GCP`, `AWS`, `AZURE`.
   - `{account_id}` is the ID of the account that created the cluster. If the cluster was created using the API, this will be the service account ID associated with the secret key used when creating the cluster.
   - `{region_name}` is the zone code of the cloud infrastructure provider where the cluster is located.
   - `{spend_limit}` is the [maximum amount of money, in US cents, you want to spend per month](plan-your-cluster.html) on this cluster.
 
 ## List the available regions for a cloud infrastructure provider
 
-To list the available regions for creating new clusters, send a `GET` request to the `/v1/clusters/available-regions?provider={cloud_provider}` endpoint. The service account associated with the secret key must have `ADMIN` or `READ` [permission](console-access-management.html#service-accounts) to list the available regions.
+To list the available regions for creating new clusters, send a `GET` request to the `/v1/clusters/available-regions?provider={cloud_provider}` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `READ` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -479,7 +563,7 @@ curl --request GET \
 
 Where:
 
-  - `{cloud_provider}` is the name of the cloud infrastructure provider. Possible values are: `GCP` and `AWS`.
+  - `{cloud_provider}` is the name of the cloud infrastructure provider. Possible values are: `GCP`, `AWS`, `AZURE`. Support for Azure is in limited access. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
   - `{secret_key}` is the secret key for the service account.
 
 If the request was successful, the client will receive a list of available regions for the specified cloud infrastructure provider.
@@ -499,7 +583,11 @@ Where:
 
 ## List all the SQL users in a cluster
 
-To list the SQL users in a cluster send a `GET` request to the `/v1/clusters/{cluster_id}/sql-users` endpoint. The service account associated with the secret key must have `ADMIN` or `READ` [permission](console-access-management.html#service-accounts) to list the SQL users.
+To list the SQL users in a cluster send a `GET` request to the `/v1/clusters/{cluster_id}/sql-users` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Developer [role](authorization.html#organization-user-roles), or the `ADMIN` or `READ` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -514,7 +602,7 @@ Where:
   {{site.data.alerts.callout_info}}
   The cluster ID used in the Cloud API is different than the routing ID used when [connecting to clusters](connect-to-a-serverless-cluster.html).
   {{site.data.alerts.end}}
-  
+
 If the request was successful, the client will receive a list of SQL users.
 
 ~~~ json
@@ -532,7 +620,16 @@ Where `{user name}` is the SQL username of the user.
 
 ## Create a new SQL user
 
-To create a new SQL user send a `POST` request to the `/v1/clusters/{cluster_id}/sql-users` endpoint. The service account associated with the secret key must have `ADMIN` [permission](console-access-management.html#service-accounts) to create new SQL users. By default the newly created SQL user is a member of the `admin` role. An `admin` SQL user has full privileges for all databases and tables in your cluster. This user can also create additional users and grant them appropriate privileges.
+To create a new SQL user send a `POST` request to the `/v1/clusters/{cluster_id}/sql-users` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Creator [role](authorization.html#organization-user-roles), or the `ADMIN` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
+
+{{site.data.alerts.callout_danger}}
+By default, a new SQL user created using the UI or Cloud API is granted the SQL `admin` role. An `admin` SQL user has full privileges for all databases and tables in the cluster, and can create additional SQL users and manage their privileges.
+When possible, it is best practice to [limit each user's privileges](managing-access.html#use-sql-roles-to-manage-access) to the minimum necessary for their tasks, in keeping with the [Principle of Least Privilege (PoLP)](https://en.wikipedia.org/wiki/Principle_of_least_privilege).
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -563,7 +660,11 @@ Where `{sql_username}` is the username of the newly created SQL user.
 
 ## Delete a SQL user
 
-To delete a SQL user send a `DELETE` request to the `/v1/clusters/{cluster_id}/sql-users/{sql_username}` endpoint. The service account associated with the secret key must have `ADMIN` [permission](console-access-management.html#service-accounts) to delete SQL users.
+To delete a SQL user send a `DELETE` request to the `/v1/clusters/{cluster_id}/sql-users/{sql_username}` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Creator [role](authorization.html#organization-user-roles), or the `ADMIN` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell
@@ -591,7 +692,11 @@ Where `{sql_username}` is the username of the deleted SQL user.
 
 ## Change a SQL user's password
 
-To change a SQL user's password send a `PUT` request to the `/v1/clusters/{cluster_id}/sql-users/{sql_username}/password` endpoint. The service account associated with the secret key must have `ADMIN` [permission](console-access-management.html#service-accounts) to change a SQL user's password.
+To change a SQL user's password send a `PUT` request to the `/v1/clusters/{cluster_id}/sql-users/{sql_username}/password` endpoint.
+
+{{site.data.alerts.callout_success}}
+The service account associated with the secret key must have the Cluster Administrator or Cluster Creator [role](authorization.html#organization-user-roles), or the `ADMIN` [permission](authorization.html#service-accounts) if it is a legacy service account.
+{{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
 ~~~ shell

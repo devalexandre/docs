@@ -12,7 +12,8 @@ Both Core and {{ site.data.products.enterprise }} changefeeds require that you e
 ## Considerations
 
 - It is necessary to [enable rangefeeds](#enable-rangefeeds) for changefeeds to work.
-- Many DDL queries (including [`TRUNCATE`](truncate.html), [`DROP TABLE`](drop-table.html), and queries that add a column family) will cause errors on a changefeed watching the affected tables. You will need to [start a new changefeed](create-changefeed.html#start-a-new-changefeed-where-another-ended).
+- If you require [`resolved`](create-changefeed.html#resolved-option) message frequency under `30s`, then you **must** set the [`min_checkpoint_frequency`](create-changefeed.html#min-checkpoint-frequency) option to at least the desired `resolved` frequency.
+- Many DDL queries (including [`TRUNCATE`](truncate.html), [`DROP TABLE`](drop-table.html), and queries that add a column family) will cause errors on a changefeed watching the affected tables. You will need to [start a new changefeed](create-changefeed.html#start-a-new-changefeed-where-another-ended). If a table is truncated that a changefeed with `on_error='pause'` is watching, you will also need to start a new changefeed. See change data capture [Known Limitations](change-data-capture-overview.html) for more detail.
 - Partial or intermittent sink unavailability may impact changefeed stability. If a sink is unavailable, messages can't send, which means that a changefeed's high-water mark timestamp is at risk of falling behind the cluster's [garbage collection window](configure-replication-zones.html#replication-zone-variables). Throughput and latency can be affected once the sink is available again. However, [ordering guarantees](changefeed-messages.html#ordering-guarantees) will still hold for as long as a changefeed [remains active](monitor-and-debug-changefeeds.html#monitor-a-changefeed).
 - When an [`IMPORT INTO`](import-into.html) statement is run, any current changefeed jobs targeting that table will fail.
 - {% include {{ page.version.version }}/cdc/virtual-computed-column-cdc.md %}
@@ -37,6 +38,8 @@ Changefeeds connect to a long-lived request (i.e., a rangefeed), which pushes ch
 > SET CLUSTER SETTING kv.rangefeed.enabled = true;
 ~~~
 
+{% include {{ page.version.version }}/cdc/cdc-cloud-rangefeed.md %}
+
 Any created changefeeds will error until this setting is enabled. Note that enabling rangefeeds currently has a small performance cost (about a 5-10% increase in latencies), whether or not the rangefeed is being used in a changefeed.
 
 The `kv.closed_timestamp.target_duration` [cluster setting](cluster-settings.html) can be used with changefeeds. Resolved timestamps will always be behind by at least the duration configured by this setting. However, decreasing the duration leads to more transaction restarts in your cluster, which can affect performance.
@@ -60,10 +63,17 @@ To create an {{ site.data.products.enterprise }} changefeed:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
-> CREATE CHANGEFEED FOR TABLE table_name, table_name2 INTO '{scheme}://{host}:{port}?{query_parameters}';
+CREATE CHANGEFEED FOR TABLE table_name, table_name2 INTO '{scheme}://{host}:{port}?{query_parameters}';
 ~~~
 
 {% include {{ page.version.version }}/cdc/url-encoding.md %}
+
+When you create a changefeed **without** specifying a sink, CockroachDB sends the changefeed events to the SQL client. Consider the following regarding the [display format](cockroach-sql.html#sql-flag-format) in your SQL client:
+
+- If you do not define a display format, the CockroachDB SQL client will automatically use `ndjson` format.
+- If you specify a display format, the client will use that format (e.g., `--format=csv`).
+- If you set the client display format to `ndjson` and set the changefeed [`format`](create-changefeed.html#format) to `csv`, you'll receive JSON format with CSV nested inside.
+- If you set the client display format to `csv` and set the changefeed [`format`](create-changefeed.html#format) to `json`, you'll receive a comma-separated list of JSON values.
 
 For more information, see [`CREATE CHANGEFEED`](create-changefeed.html).
 
@@ -73,7 +83,7 @@ To pause an {{ site.data.products.enterprise }} changefeed:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
-> PAUSE JOB job_id;
+PAUSE JOB job_id;
 ~~~
 
 For more information, see [`PAUSE JOB`](pause-job.html).
@@ -84,7 +94,7 @@ To resume a paused {{ site.data.products.enterprise }} changefeed:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
-> RESUME JOB job_id;
+RESUME JOB job_id;
 ~~~
 
 For more information, see [`RESUME JOB`](resume-job.html).
@@ -95,7 +105,7 @@ To cancel an {{ site.data.products.enterprise }} changefeed:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
-> CANCEL JOB job_id;
+CANCEL JOB job_id;
 ~~~
 
 For more information, see [`CANCEL JOB`](cancel-job.html).
@@ -120,7 +130,7 @@ To create a core changefeed:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql
-> EXPERIMENTAL CHANGEFEED FOR table_name;
+EXPERIMENTAL CHANGEFEED FOR table_name;
 ~~~
 
 For more information, see [`EXPERIMENTAL CHANGEFEED FOR`](changefeed-for.html).

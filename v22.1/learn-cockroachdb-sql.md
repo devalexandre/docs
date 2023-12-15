@@ -9,6 +9,10 @@ This tutorial guides you through some of the most essential CockroachDB SQL stat
 
 For a complete list of supported SQL statements and related details, see [SQL Statements](sql-statements.html).
 
+{{site.data.alerts.callout_info}}
+This tutorial is for {{site.data.products.core}} users. If you are working with {{site.data.products.dedicated}} or {{site.data.products.serverless}}, you can run this tutorial against [a cluster running in the cloud](../cockroachcloud/learn-cockroachdb-sql.html).
+{{site.data.alerts.end}}
+
 <div class="clearfix">
   <a class="btn btn-outline-primary" href="../tutorials/learn-cockroachdb-sql-interactive.html" target="_blank" rel="noopener">Run this in your browser &rarr;</a>
 </div>
@@ -204,7 +208,7 @@ To show the indexes on a table, use [`SHOW INDEX FROM`](show-index.html) followe
 
 ## Query a table
 
-To query a table, use [`SELECT`](select-clause.html) followed by a comma-separated list of the columns to be returned and the table from which to retrieve the data. You can also use the [`LIMIT`](https://www.cockroachlabs.com/docs/dev/limit-offset.html) clause to restrict the number of rows retrieved:
+To query a table, use [`SELECT`](select-clause.html) followed by a comma-separated list of the columns to be returned and the table from which to retrieve the data. You can also use the [`LIMIT`](../dev/limit-offset.html) clause to restrict the number of rows retrieved:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql

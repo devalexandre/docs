@@ -29,8 +29,9 @@ Table name | Description| Use in production
 [`cluster_contended_keys`](#cluster_contended_keys)  | Contains information about [contended](performance-best-practices-overview.html#transaction-contention) keys in your cluster.| ✓
 [`cluster_contended_tables`](#cluster_contended_tables)  | Contains information about [contended](performance-best-practices-overview.html#transaction-contention) tables in your cluster.| ✓
 [`cluster_contention_events`](#cluster_contention_events)  | Contains information about [contention](performance-best-practices-overview.html#transaction-contention) in your cluster.| ✓
-[`cluster_locks`](#cluster_locks)  | Contains information about [locks](architecture/transaction-layer.html#concurrency-control) held by [transactions](transactions.html) on specific [keys](architecture/overview.html#architecture-range). | ✓
+[`cluster_locks`](#cluster_locks) | Contains information about [locks](architecture/transaction-layer.html#concurrency-control) held by [transactions](transactions.html) on specific [keys](architecture/overview.html#architecture-range). | ✓
 `cluster_database_privileges` | Contains information about the [database privileges](security-reference/authorization.html#privileges) on your cluster.| ✗
+`cluster_execution_insights` | Contains information about SQL statement executions on your cluster.| ✗
 `cluster_distsql_flows` | Contains information about the flows of the [DistSQL execution](architecture/sql-layer.html#distsql) scheduled in your cluster.| ✗
 `cluster_inflight_traces` | Contains information about in-flight [tracing](show-trace.html) in your cluster.| ✗
 [`cluster_queries`](#cluster_queries) | Contains information about queries running on your cluster.| ✓
@@ -38,6 +39,7 @@ Table name | Description| Use in production
 `cluster_settings` | Contains information about [cluster settings](cluster-settings.html).| ✗
 [`cluster_transactions`](#cluster_transactions) | Contains information about transactions running on your cluster.| ✓
 `create_statements` | Contains information about tables and indexes in your database.| ✗
+`create_function_statements` | <a name="create_function_statements"></a> Contains information about [user-defined functions](user-defined-functions.html) in your database.| ✗
 `create_type_statements` | <a name="create_type_statements"></a> Contains information about [user-defined types](enum.html) in your database.| ✗
 `cross_db_references` | Contains information about objects that reference other objects, such as [foreign keys](foreign-key.html) or [views](views.html), across databases in your cluster.| ✗
 `databases` | Contains information about the databases in your cluster.| ✗
@@ -59,6 +61,7 @@ Table name | Description| Use in production
 `lost_descriptors_with_data` | Contains information about table descriptors that have been deleted but still have data left over in storage.| ✗
 `node_build_info` | Contains information about nodes in your cluster.| ✗
 `node_contention_events`| Contains information about contention on the gateway node of your cluster.| ✗
+`node_execution_insights` | Contains information about SQL statement executions on the gateway node of your cluster.| ✗
 `node_distsql_flows` | Contains information about the flows of the [DistSQL execution](architecture/sql-layer.html#distsql) scheduled on nodes in your cluster.| ✗
 `node_inflight_trace_spans` | Contains information about currently in-flight spans in the current node.| ✗
 `node_metrics` | Contains metrics for nodes in your cluster.| ✗
@@ -82,7 +85,7 @@ Table name | Description| Use in production
 `table_indexes` | Contains information about table indexes in your cluster.| ✗
 `table_row_statistics` | Contains row count statistics for tables in the current database.| ✗
 `tables` | Contains information about tables in your cluster.| ✗
-[`transaction_contention_events`](#transaction_contention_events)| Contains information about historical transaction contention events. | ✓
+[`transaction_contention_events`](#transaction_contention_events)| Contains information about historical transaction [contention](performance-best-practices-overview.html#transaction-contention) events. | ✓
 [`transaction_statistics`](#transaction_statistics) | Aggregates in-memory and persisted [statistics](ui-transactions-page.html#transaction-statistics) from `system.transaction_statistics` within hourly time intervals based on UTC time, rounded down to the nearest hour. To reset the statistics, call `SELECT crdb_internal.reset_sql_stats()`.| ✓
 `zones` | Contains information about [zone configurations](configure-replication-zones.html) in your cluster.| ✗
 
@@ -149,11 +152,11 @@ This section provides the schema and examples for tables supported in production
 
 Column | Type | Description
 ------------|-----|------------
-`database_name`  | `STRING`  | The name of the database experiencing contention.
-`schema_name`  | `STRING`  | The name of the schema experiencing contention.
-`table_name` | `STRING` | The name of the table experiencing contention.
-`index_name` | `STRING` | The name of the index experiencing contention.
-`num_contention_events` | `INT8` | The number of contention events.
+`database_name`  | `STRING`  | The name of the database experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`schema_name`  | `STRING`  | The name of the schema experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`table_name` | `STRING` | The name of the table experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`index_name` | `STRING` | The name of the index experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`num_contention_events` | `INT8` | The number of [contention](performance-best-practices-overview.html#transaction-contention) events.
 
 #### View all indexes that have experienced contention
 
@@ -172,12 +175,12 @@ SELECT * FROM movr.crdb_internal.cluster_contended_indexes;
 
 Column | Type | Description
 ------------|-----|------------
-`database_name`  | `STRING`  | The name of the database experiencing contention.
-`schema_name`  | `STRING`  | The name of the schema experiencing contention.
-`table_name` | `STRING` | The name of the table experiencing contention.
-`index_name` | `STRING` | The name of the index experiencing contention.
-`key` | `BYTES` | The key experiencing contention.
-`num_contention_events` | `INT8` | The number of contention events.
+`database_name`  | `STRING`  | The name of the database experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`schema_name`  | `STRING`  | The name of the schema experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`table_name` | `STRING` | The name of the table experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`index_name` | `STRING` | The name of the index experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`key` | `BYTES` | The key experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`num_contention_events` | `INT8` | The number of [contention](performance-best-practices-overview.html#transaction-contention) events.
 
 #### View all keys that have experienced contention
 
@@ -214,10 +217,10 @@ SELECT table_name, index_name, key, num_contention_events FROM movr.crdb_interna
 
 Column | Type | Description
 ------------|-----|------------
-`database_name`  | `STRING`  | The name of the database experiencing contention.
-`schema_name`  | `STRING`  | The name of the schema experiencing contention.
-`table_name` | `STRING` | The name of the table experiencing contention.
-`num_contention_events` | `INT8` | The number of contention events.
+`database_name`  | `STRING`  | The name of the database experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`schema_name`  | `STRING`  | The name of the schema experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`table_name` | `STRING` | The name of the table experiencing [contention](performance-best-practices-overview.html#transaction-contention).
+`num_contention_events` | `INT8` | The number of [contention](performance-best-practices-overview.html#transaction-contention) events.
 
 #### View all tables that have experienced contention
 
@@ -238,11 +241,11 @@ Column | Type | Description
 ------------|-----|------------
 `table_id`  | `INT8`  | Unique table identifier.
 `index_id`  | `INT8`  | Unique index identifier.
-`num_contention_events` | `INT8` | The number of contention events.
-`cumulative_contention_time` | `INTERVAL` | The cumulative time that the transaction spends waiting in contention.
-`key` | `BYTES` | The key experiencing contention.
+`num_contention_events` | `INT8` | The number of [contention](performance-best-practices-overview.html#transaction-contention) events.
+`cumulative_contention_time` | `INTERVAL` | The cumulative time that the transaction spends waiting in [contention](performance-best-practices-overview.html#transaction-contention).
+`key` | `BYTES` | The key experiencing [contention](performance-best-practices-overview.html#transaction-contention).
 `txn_id` | `UUID` | Unique transaction identifier.
-`count` | `INT8` | The number of contention events.
+`count` | `INT8` | The number of [contention](performance-best-practices-overview.html#transaction-contention) events.
 
 #### View all contention events
 
@@ -264,6 +267,32 @@ SELECT * FROM crdb_internal.cluster_contention_events;
        107 |        2 |                     9 | 00:00:00.039563            | \xf3\x8a\x12seattle\x00\x01\x12v\xd4J%\x90\x1bF\x0b\x97\x02v\xc7\xee\xa9\xc7R\x00\x01\x12s\xa1\xad\x8c\xca\xe4G\t\xadG\x91\xa3\xa4\xae\xb7\xc7\x00\x01\x88      | e83df970-a01a-470f-914d-f5615eeec620 |     1
 (9 rows)
 ~~~
+
+#### View the tables/indexes with the most time under contention
+
+To view the [tables](create-table.html) and [indexes](indexes.html) with the most cumulative time under [contention](performance-best-practices-overview.html#transaction-contention) since the last server restart, run the query below.
+
+{{site.data.alerts.callout_info}}
+The default tracing behavior captures a small percent of transactions so not all contention events will be recorded. When investigating transaction contention, you can set the `sql.trace.txn.enable_threshold` [cluster setting](cluster-settings.html#setting-sql-trace-txn-enable-threshold) to always capture contention events.
+{{site.data.alerts.end}}
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+WITH c AS (SELECT DISTINCT ON (table_id, index_id) table_id, index_id, num_contention_events AS events, cumulative_contention_time AS time FROM crdb_internal.cluster_contention_events) SELECT i.descriptor_name, i.index_name, c.events, c.time FROM crdb_internal.table_indexes AS i JOIN c ON i.descriptor_id = c.table_id AND i.index_id = c.index_id ORDER BY c.time DESC LIMIT 10;
+~~~
+
+~~~
+  descriptor_name |   index_name   | events |      time
+------------------+----------------+--------+------------------
+  warehouse       | warehouse_pkey |      7 | 00:00:01.046293
+  district        | district_pkey  |      1 | 00:00:00.191346
+  stock           | stock_pkey     |      1 | 00:00:00.158207
+  order           | order_pkey     |      1 | 00:00:00.155404
+  new_order       | new_order_pkey |      1 | 00:00:00.100949
+(5 rows)
+~~~
+
+(The output above is for a [local cluster](start-a-local-cluster.html) running the [TPC-C workload](cockroach-workload.html#tpcc-workload) at a `--concurrency` of 256.)
 
 ### `cluster_locks`
 
@@ -380,55 +409,55 @@ This example assumes you have a cluster in the state it was left in by [the prev
 
 In this example you will run a workload on the cluster with multiple concurrent transactions using the [bank workload](cockroach-workload.html#run-the-bank-workload). With a sufficiently high concurrency setting, the bank workload will frequently attempt to update multiple accounts at the same time. This will create plenty of locks to view in the `crdb_internal.cluster_locks` table.
 
-First, initialize the workload:
+1. Initialize the workload:
 
-{% include_cached copy-clipboard.html %}
-~~~ shell
-cockroach workload init bank 'postgresql://root@localhost:26257/bank?sslmode=disable'
-~~~
+    {% include_cached copy-clipboard.html %}
+    ~~~ shell
+    cockroach workload init bank 'postgresql://root@localhost:26257/bank?sslmode=disable'
+    ~~~
 
-Next, run it at a high concurrency setting:
+1. Run it at a high concurrency setting:
 
-{% include_cached copy-clipboard.html %}
-~~~ shell
-cockroach workload run bank --concurrency=128 --duration=3m 'postgresql://root@localhost:26257/bank?sslmode=disable'
-~~~
+    {% include_cached copy-clipboard.html %}
+    ~~~ shell
+    cockroach workload run bank --concurrency=128 --duration=3m 'postgresql://root@localhost:26257/bank?sslmode=disable'
+    ~~~
 
-While the workload is running, issue the following query to view a subset of the locks being requested.
+1. While the workload is running, issue the following query to view a subset of the locks being requested:
 
-{% include_cached copy-clipboard.html %}
-~~~ sql
-SELECT
-    database_name,
-    table_name,
-    txn_id,
-    ts,
-    lock_key_pretty,
-    lock_strength,
-    granted,
-    contended
-FROM
-    crdb_internal.cluster_locks
-WHERE table_name = 'bank'
-LIMIT
-    10
-~~~
+    {% include_cached copy-clipboard.html %}
+    ~~~ sql
+    SELECT
+        database_name,
+        table_name,
+        txn_id,
+        ts,
+        lock_key_pretty,
+        lock_strength,
+        granted,
+        contended
+    FROM
+        crdb_internal.cluster_locks
+    WHERE table_name = 'bank'
+    LIMIT
+        10
+    ~~~
 
-~~~
-  database_name | table_name |                txn_id                |             ts             |  lock_key_pretty   | lock_strength | granted | contended
-----------------+------------+--------------------------------------+----------------------------+--------------------+---------------+---------+------------
-  bank          | bank       | 7f0e262f-78e6-4a52-ad4e-d3cd5a851c82 | 2022-07-27 18:59:09.358877 | /Table/110/1/82/0  | Exclusive     |  true   |   false
-  bank          | bank       | c5bdc305-5940-43e1-8017-95260b4a1a39 | 2022-07-27 18:59:06.071559 | /Table/110/1/110/0 | Exclusive     |  true   |   true
-  bank          | bank       | ec872809-06b6-4320-b416-88b37c656f28 | 2022-07-27 18:59:05.843786 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | 7f4cd00d-2765-4b8d-b2e3-96e1c20e515e | 2022-07-27 18:59:06.345931 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | d6683639-a529-43b1-89ce-e7f0aa268426 | 2022-07-27 18:59:06.800857 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | ffbeb239-9fba-4cd8-8f20-ccebe3a069cd | 2022-07-27 18:59:07.485126 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | 7f64b1f5-e70e-4257-9d5b-5a26e48001cf | 2022-07-27 18:59:07.77492  | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | 3e4ca7d5-77ef-474b-8ffa-4eeeffa0d190 | 2022-07-27 18:59:08.888788 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | 57d984d7-54a9-4c7f-893d-a8c67e748bbe | 2022-07-27 18:59:05.117683 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-  bank          | bank       | 3c06319f-31c3-43ba-8323-9807e2c6de04 | 2022-07-27 18:59:05.117683 | /Table/110/1/110/0 | Exclusive     |  false  |   true
-(10 rows)
-~~~
+    ~~~
+      database_name | table_name |                txn_id                |             ts             |  lock_key_pretty   | lock_strength | granted | contended
+    ----------------+------------+--------------------------------------+----------------------------+--------------------+---------------+---------+------------
+      bank          | bank       | 7f0e262f-78e6-4a52-ad4e-d3cd5a851c82 | 2022-07-27 18:59:09.358877 | /Table/110/1/82/0  | Exclusive     |  true   |   false
+      bank          | bank       | c5bdc305-5940-43e1-8017-95260b4a1a39 | 2022-07-27 18:59:06.071559 | /Table/110/1/110/0 | Exclusive     |  true   |   true
+      bank          | bank       | ec872809-06b6-4320-b416-88b37c656f28 | 2022-07-27 18:59:05.843786 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | 7f4cd00d-2765-4b8d-b2e3-96e1c20e515e | 2022-07-27 18:59:06.345931 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | d6683639-a529-43b1-89ce-e7f0aa268426 | 2022-07-27 18:59:06.800857 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | ffbeb239-9fba-4cd8-8f20-ccebe3a069cd | 2022-07-27 18:59:07.485126 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | 7f64b1f5-e70e-4257-9d5b-5a26e48001cf | 2022-07-27 18:59:07.77492  | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | 3e4ca7d5-77ef-474b-8ffa-4eeeffa0d190 | 2022-07-27 18:59:08.888788 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | 57d984d7-54a9-4c7f-893d-a8c67e748bbe | 2022-07-27 18:59:05.117683 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+      bank          | bank       | 3c06319f-31c3-43ba-8323-9807e2c6de04 | 2022-07-27 18:59:05.117683 | /Table/110/1/110/0 | Exclusive     |  false  |   true
+    (10 rows)
+    ~~~
 
 As in the [basic example](#cluster-locks-basic-example), you can see that some transactions that wanted locks on the `bank` table are having to wait (`granted` is `false`), usually because they are trying to operate on the same rows as one or more other transactions (`contended` is `true`).
 
@@ -842,6 +871,23 @@ Column | Type | Description
 `statistics` | `JSONB NOT NULL` | Statistics for the statement. See [`statistics` column](#statistics-column).
 `sampled_plan` | `JSONB NOT NULL` | The sampled query plan of the current statement statistics. This column is unfilled if there is no sampled query plan.
 `aggregation_interval` | `INTERVAL NOT NULL` | The interval over which statistics are aggregated.
+`index_recommendations` | `STRING[] NOT NULL` | An array of strings containing [index recommendations](ui-insights-page.html#schema-insights-tab) of the format `{type} : {sql query}`.
+
+#### `fingerprint_id` column
+
+The value is in hexadecimal format. The following examples show how to use this value to query `statement_statistics`:
+
+1. Add the escape character `\x` at the start of the `fingerprint_id`:
+{% include_cached copy-clipboard.html %}
+~~~sql
+> SELECT * FROM crdb_internal.statement_statistics WHERE fingerprint_id='\x97ffc170783445fd';
+~~~
+
+1. Encode the `fingerprint_id` as `hex`:
+{% include_cached copy-clipboard.html %}
+~~~sql
+> SELECT * FROM crdb_internal.statement_statistics WHERE encode(fingerprint_id, 'hex')='97ffc170783445fd';
+~~~
 
 #### `metadata` column
 
@@ -1113,9 +1159,9 @@ group by metadata ->> 'query', statistics->'statistics'->'planGists'->>0;
 
 ### `transaction_contention_events`
 
-Contains one row for each transaction contention event.
+Contains one row for each transaction [contention](performance-best-practices-overview.html#transaction-contention) event.
 
-Requires either the `VIEWACTIVITY` or `VIEWACTIVITYREDACTED` [role option](alter-role.html#role-options) to access. If you have the `VIEWACTIVITYREDACTED` role, `contending_key` will be redacted.
+Requires either the `VIEWACTIVITY` or `VIEWACTIVITYREDACTED` [system privilege](security-reference/authorization.html#supported-privileges) (or the legacy `VIEWACTIVITY` or `VIEWACTIVITYREDACTED` [role option](security-reference/authorization.html#role-options)) to access. If you have the `VIEWACTIVITYREDACTED` privilege, `contending_key` will be redacted.
 
 Contention events are stored in memory. You can control the amount of contention events stored per node via the `sql.contention.event_store.capacity` [cluster setting](cluster-settings.html).
 
@@ -1123,11 +1169,11 @@ The `sql.contention.event_store.duration_threshold` [cluster setting](cluster-se
 
 Column | Type | Description
 ------------|-----|------------
-`collection_ts` | `TIMESTAMPTZ NOT NULL` | The timestamp when the transaction contention event was collected.
+`collection_ts` | `TIMESTAMPTZ NOT NULL` | The timestamp when the transaction [contention](performance-best-practices-overview.html#transaction-contention) event was collected.
 `blocking_txn_id` | `UUID NOT NULL` | The ID of the blocking transaction. You can join this column into the [`cluster_contention_events`](#cluster_contention_events) table.
-`blocking_txn_fingerprint_id` | `BYTES NOT NULL`| The ID of the blocking transaction fingerprint. To surface historical information about the transactions that caused the contention, you can join this column into the [`statement_statistics`](#statement_statistics) and [`transaction_statistics`](#transaction_statistics) tables to surface historical information about the transactions that caused the contention.
+`blocking_txn_fingerprint_id` | `BYTES NOT NULL`| The ID of the blocking transaction fingerprint. To surface historical information about the transactions that caused the [contention](performance-best-practices-overview.html#transaction-contention), you can join this column into the [`statement_statistics`](#statement_statistics) and [`transaction_statistics`](#transaction_statistics) tables to surface historical information about the transactions that caused the contention.
 `waiting_txn_id` | `UUID NOT NULL` | The ID of the waiting transaction. You can join this column into the [`cluster_contention_events`](#cluster_contention_events) table.
-`waiting_txn_fingerprint_id` | `BYTES NOT NULL` | The ID of the waiting transaction fingerprint. To surface historical information about the transactions that caused the contention, you can join this column into the [`statement_statistics`](#statement_statistics) and [`transaction_statistics`](#transaction_statistics) tables.
+`waiting_txn_fingerprint_id` | `BYTES NOT NULL` | The ID of the waiting transaction fingerprint. To surface historical information about the transactions that caused the [contention](performance-best-practices-overview.html#transaction-contention), you can join this column into the [`statement_statistics`](#statement_statistics) and [`transaction_statistics`](#transaction_statistics) tables.
 `contention_duration` | `INTERVAL NOT NULL` | The interval of time the waiting transaction spent waiting for the blocking transaction.
 `contending_key` | `BYTES NOT NULL` | The key on which the transactions contended.
 

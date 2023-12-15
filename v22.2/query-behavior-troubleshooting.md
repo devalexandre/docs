@@ -19,7 +19,7 @@ When you experience a hanging or stuck query and the cluster is healthy (i.e., n
 
 Such long-running queries can hold intents open for (practically) unlimited durations. If your query tries to access those rows, it may have to wait for that transaction to complete (by [committing](commit-transaction.html) or [rolling back](rollback-transaction.html)) before it can make progress.
 
-This situation is hard to diagnose via the [Transactions](ui-transactions-page.html) and [Statements](ui-statements-page.html) pages in the [DB Console](ui-overview.html) since contention is only reported after the conflict has been resolved (which in this scenario may be never).
+This situation is hard to diagnose via the [Transactions](ui-transactions-page.html) and [Statements](ui-statements-page.html) pages in the [DB Console](ui-overview.html) since [contention](performance-best-practices-overview.html#transaction-contention) is only reported after the conflict has been resolved (which in this scenario may be never).
 
 In these cases, you will need to take the following steps.
 
@@ -56,17 +56,11 @@ If you want to cancel the whole session for that transaction, use [`CANCEL SESSI
 
 ### Identify slow queries
 
-You can identify high-latency SQL statements (slow queries) using one of the following resources:
+You can identify high-latency SQL statements on the [**Insights**](ui-insights-page.html) or [**Statements**](ui-statements-page.html) pages in the DB Console. If these graphs reveal latency spikes, CPU usage spikes, or slow requests, these might indicate slow queries in your cluster.
 
-- The [slow query log](logging-use-cases.html#sql_perf).
-- The [Statements](ui-statements-page.html) page, which tracks latency in the **Statement Time** column.
-- The [Service Latency: SQL, 99th percentile](ui-sql-dashboard.html#service-latency-sql-99th-percentile) graph on the [SQL dashboard](ui-sql-dashboard.html).
-- The [CPU percent](ui-hardware-dashboard.html#cpu-percent) graph on the [Hardware dashboard](ui-sql-dashboard.html).
-- The graphs on the [Slow requests dashboard](ui-slow-requests-dashboard.html).
+You can also enable the [slow query log](logging-use-cases.html#sql_perf) to log all queries whose latency exceeds a configured threshold, as well as queries that perform a full table or index scan.
 
-If these graphs reveal latency spikes, CPU usage spikes, or slow requests, these might indicate slow queries in your cluster.
-
-You can also collect richer diagnostics of a high-latency statement by creating a [diagnostics bundle](ui-statements-page.html#diagnostics) when a statement fingerprint exceeds a certain latency.
+You can collect richer diagnostics of a high-latency statement by creating a [diagnostics bundle](ui-statements-page.html#diagnostics) when a statement fingerprint exceeds a certain latency.
 
 {{site.data.alerts.callout_info}}
 {% include {{ page.version.version }}/prod-deployment/resolution-untuned-query.md %}
@@ -162,7 +156,7 @@ If the query performance is irregular:
 
 1.  Run [`SHOW TRACE FOR SESSION`](show-trace.html) for the query twice: once when the query is performing as expected and once when the query is slow.
 
-2.  [Contact support](support-resources.html) to help analyze the outputs of the `SHOW TRACE` command.
+1.  [Contact support](support-resources.html) to help analyze the outputs of the `SHOW TRACE` command.
 
 ### `SELECT` statements are slow
 
@@ -313,7 +307,7 @@ A *hot node* is one that has much higher resource usage than other nodes. To det
 
 #### Solution
 
-- If you have a small table that fits into one range, then only one of the nodes will be used. This is expected behavior. However, you can [split your range](split-at.html) to distribute the table across multiple nodes.
+- If you have a small table that fits into one range, then only one of the nodes will be used. This is expected behavior. However, you can [split your range](alter-table.html#split-at) to distribute the table across multiple nodes.
 
 - If the SQL Connections graph shows that one node has a higher number of SQL connections and other nodes have zero connections, check if your app is set to talk to only one node.
 

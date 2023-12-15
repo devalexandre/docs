@@ -1,1 +1,1 @@
-**500 IOPS and 30 MB/s per vCPU**
+500 IOPS and 30 MB/s per vCPU

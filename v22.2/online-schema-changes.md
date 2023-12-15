@@ -19,8 +19,12 @@ Schema changes consume additional resources, and if they are run when the cluste
 {{site.data.alerts.end}}
 
 {{site.data.alerts.callout_info}}
-Support for schema changes within [transactions][txns] is [limited](#limitations). We recommend doing schema changes outside transactions where possible. When a schema management tool uses transactions on your behalf, we recommend only doing one schema change operation per transaction.
+CockroachDB [does not support schema changes](#limitations) within explicit [transactions][txns] with full atomicity guarantees. CockroachDB only supports DDL changes within implicit transactions (individual statements). If a schema management tool uses transactions on your behalf, it should only execute one schema change operation per transaction.
 {{site.data.alerts.end}}
+
+To see a demo of an online schema change, watch the following video:
+
+{% include_cached youtube.html video_id="xvBBQVIGYio" %}
 
 ## How online schema changes work
 
@@ -42,14 +46,14 @@ The following online schema changes pause if the node executing the schema chang
 
 - Changes that trigger an index backfill (adding data to an index).
 - The following statements:
-  - [`ADD COLUMN`](add-column.html) when the statement also features `INDEX` or `UNIQUE`.
-  - [`ALTER PRIMARY KEY`](alter-primary-key.html)
+  - [`ADD COLUMN`](alter-table.html#add-column) when the statement also features `INDEX` or `UNIQUE`.
+  - [`ALTER PRIMARY KEY`](alter-table.html#alter-primary-key)
   - [`CREATE INDEX`](create-index.html)
   - [`CREATE MATERIALIZED VIEW`](views.html#materialized-views)
   - [`CREATE TABLE AS`](create-table-as.html)
   - [`REFRESH`](refresh.html)
-  - [`SET LOCALITY`](set-locality.html) under one of the following conditions:
-      - The locality changes from [`REGIONAL BY ROW`](set-locality.html#regional-by-row) to something that is not `REGIONAL BY ROW`.
+  - [`SET LOCALITY`](alter-table.html#set-locality) under one of the following conditions:
+      - The locality changes from [`REGIONAL BY ROW`](alter-table.html#regional-by-row) to something that is not `REGIONAL BY ROW`.
       - The locality changes from something that is not `REGIONAL BY ROW` to `REGIONAL BY ROW`.
 
 {{site.data.alerts.callout_info}}
@@ -62,7 +66,7 @@ If a schema change fails, the schema change job will be cleaned up automatically
 
 ## Declarative schema changer
 
-The declarative schema changer is the next iteration of how schema changes will be performed in CockroachDB. By planning schema change operations in a more principled manner, the declarative schema changer will ultimately make transactional schema changes more stable. You can identify jobs that are using the declarative schema changer by running [`SHOW JOBS`](show-jobs.html) and finding jobs with a `job_type` of `NEW SCHEMA CHANGE`.
+CockroachDB only guarantees atomicity for schema changes within single statement transactions, either implicit transactions or in an explicit transaction with a single schema change statement. The declarative schema changer is the next iteration of how schema changes will be performed in CockroachDB. By planning schema change operations in a more principled manner, the declarative schema changer will ultimately make transactional schema changes possible. You can identify jobs that are using the declarative schema changer by running [`SHOW JOBS`](show-jobs.html) and finding jobs with a `job_type` of `NEW SCHEMA CHANGE`.
 
 The following statements use the declarative schema changer by default:
 
@@ -77,7 +81,96 @@ Until all schema change statements are moved to use the declarative schema chang
 Declarative schema changer statements and legacy schema changer statements operating on the same objects cannot exist within the same transaction. Either split the transaction into multiple transactions, or disable the cluster setting or session variable.
 {{site.data.alerts.end}}
 
+{% include {{page.version.version}}/sql/sql-defaults-cluster-settings-deprecation-notice.md %}
+
 ## Best practices for online schema changes
+
+### Estimate your storage capacity before performing online schema changes
+
+Some schema change operations, like adding or dropping columns or altering primary keys, will temporarily increase a cluster's storage consumption. Specifically, these operations may temporarily require up to three times more storage space  for the range size while the schema change is being applied, and this may cause the cluster to run out of storage space or fail to apply the schema change.
+
+To find the range size of the indexes in your table, use the following query:
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+WITH x AS (
+            SELECT *, row_number() OVER ()
+              FROM (
+                    SELECT DISTINCT index_name
+                      FROM [SHOW INDEXES FROM {table name}]
+                   )
+         )
+SELECT x.index_name,
+       round(l.range_size / 1048576, 4) AS range_size_mb
+  FROM crdb_internal.ranges AS l, x
+ WHERE     start_key
+           < (
+                (crdb_internal.index_span((SELECT id FROM system.namespace WHERE name = '{table name}'), x.row_number)::STRING[])[2]
+            )::BYTES
+       AND end_key
+           > (
+                (crdb_internal.index_span((SELECT id FROM system.namespace WHERE name = '{table name}'), x.row_number)::STRING[])[1]
+            )::BYTES;
+~~~
+
+Where `{table name}` is the name of the table.
+
+The output includes a `range_size_mb` column that shows the size of the range in megabytes for each index.
+
+In many cases this range size is trivial, but when the range size is many gigabytes or terabytes, you will need at least three times that amount of free storage space to successfully apply an online schema change.
+
+#### Example of finding the range size of an index
+
+1. Start a 3 node [`cockroach demo`](cockroach-demo.html) cluster with the MovR dataset.
+
+    {% include_cached copy-clipboard.html %}
+    ~~~ shell
+    cockroach demo --nodes 3
+    ~~~
+
+1. Find the range size of the indexes in the `movr.vehicles` table:
+
+    {% include_cached copy-clipboard.html %}
+    ~~~ sql
+    WITH x AS (
+                SELECT *, row_number() OVER ()
+                  FROM (
+                        SELECT DISTINCT index_name
+                          FROM [SHOW INDEXES FROM vehicles]
+                      )
+            )
+    SELECT x.index_name,
+          round(l.range_size / 1048576, 4) AS range_size_mb
+      FROM crdb_internal.ranges AS l, x
+    WHERE     start_key
+              < (
+                    (crdb_internal.index_span((SELECT id FROM system.namespace WHERE name = 'vehicles'), x.row_number)::STRING[])[2]
+                )::BYTES
+          AND end_key
+              > (
+                    (crdb_internal.index_span((SELECT id FROM system.namespace WHERE name = 'vehicles'), x.row_number)::STRING[])[1]
+                )::BYTES;
+    ~~~
+
+    ~~~
+                  index_name               | range_size_mb
+    ----------------------------------------+----------------
+      vehicles_pkey                         |        0.0003
+      vehicles_pkey                         |        0.0001
+      vehicles_pkey                         |        0.0004
+      vehicles_pkey                         |        0.0006
+      vehicles_pkey                         |        0.0002
+      vehicles_pkey                         |        0.0001
+      vehicles_pkey                         |        0.0001
+      vehicles_pkey                         |        0.0001
+      vehicles_pkey                         |        0.0014
+      vehicles_auto_index_fk_city_ref_users |        0.0014
+    (10 rows)
+    ~~~
+
+### Run schema changes with large backfills during off-peak hours
+
+Online schema changes that result in large backfill operations (for example, [`ALTER TABLE ... ALTER COLUMN`](alter-table.html#alter-column) statements) are computationally expensive, and can result in degraded performance. The [admission control system](admission-control.html) will help keep high-priority operations running, but it's recommended to run backfill-heavy schema changes during times when the cluster is under relatively low loads.
 
 ### Schema changes in multi-region clusters
 
@@ -133,7 +226,7 @@ COMMIT
 
 ### Run multiple schema changes in a single `ALTER TABLE` statement
 
-Some schema changes can be used in combination in a single `ALTER TABLE` statement. For a list of commands that can be combined, see [`ALTER TABLE`](alter-table.html). For a demonstration, see [Add and rename columns atomically](rename-column.html#add-and-rename-columns-atomically).
+Some schema changes can be used in combination in a single `ALTER TABLE` statement. For a list of commands that can be combined, see [`ALTER TABLE`](alter-table.html). For a demonstration, see [Add and rename columns atomically](alter-table.html#add-and-rename-columns-atomically).
 
 ### Show all schema change jobs
 
@@ -165,7 +258,9 @@ For more long-term recovery solutions, consider taking either a [full or increme
 
 ## Limitations
 
-### Limited support for schema changes within transactions
+### Schema changes within transactions
+
+Schema changes should not be performed within an explicit transaction with multiple statements, as they do not have the same atomicity guarantees as other SQL statements. Execute schema changes either as single statements (as an implicit transaction), or in an explicit transaction consisting of the single schema change statement.
 
 Schema changes keep your data consistent at all times, but they do not run inside [transactions][txns] in the general case. Making schema changes transactional would mean requiring a given schema change to propagate across all the nodes of a cluster. This would block all user-initiated transactions being run by your application, since the schema change would have to commit before any other transactions could make progress. This would prevent the cluster from servicing reads and writes during the schema change, requiring application downtime.
 
@@ -177,84 +272,11 @@ Schema changes keep your data consistent at all times, but they do not run insid
 
 ### No online schema changes if primary key change in progress
 
-You cannot start an online schema change on a table if a [primary key change](alter-primary-key.html) is currently in progress on the same table.
+You cannot start an online schema change on a table if a [primary key change](alter-table.html#alter-primary-key) is currently in progress on the same table.
 
 ### No online schema changes between executions of prepared statements
 
 {% include {{ page.version.version }}/known-limitations/schema-changes-between-prepared-statements.md %}
-
-### Examples of statements that fail
-
-The following statements fail due to [limited support for schema changes within transactions](#limited-support-for-schema-changes-within-transactions).
-
-#### Create an index and then run a select against that index inside a transaction
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-> CREATE TABLE foo (id INT PRIMARY KEY, name VARCHAR);
-  BEGIN;
-  SAVEPOINT cockroach_restart;
-  CREATE INDEX foo_idx ON foo (id, name);
-  SELECT * from foo@foo_idx;
-  RELEASE SAVEPOINT cockroach_restart;
-  COMMIT;
-~~~
-
-~~~
-CREATE TABLE
-BEGIN
-SAVEPOINT
-CREATE INDEX
-ERROR:  relation "foo_idx" does not exist
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
-ROLLBACK
-~~~
-
-#### Add a column and then add a constraint against that column inside a transaction
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-> CREATE TABLE foo ();
-  BEGIN;
-  SAVEPOINT cockroach_restart;
-  ALTER TABLE foo ADD COLUMN bar VARCHAR;
-  ALTER TABLE foo ADD CONSTRAINT bar CHECK (foo IN ('a', 'b', 'c', 'd'));
-  RELEASE SAVEPOINT cockroach_restart;
-  COMMIT;
-~~~
-
-~~~
-CREATE TABLE
-BEGIN
-SAVEPOINT
-ALTER TABLE
-ERROR:  column "foo" not found for constraint "foo"
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
-ROLLBACK
-~~~
-
-#### Add a column and then select against that column inside a transaction
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-> CREATE TABLE foo ();
-  BEGIN;
-  SAVEPOINT cockroach_restart;
-  ALTER TABLE foo ADD COLUMN bar VARCHAR;
-  SELECT bar FROM foo;
-  RELEASE SAVEPOINT cockroach_restart;
-  COMMIT;
-~~~
-
-~~~
-CREATE TABLE
-BEGIN
-SAVEPOINT
-ALTER TABLE
-ERROR:  column name "bar" not found
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
-ROLLBACK
-~~~
 
 ### `ALTER TYPE` schema changes cannot be cancelled
 

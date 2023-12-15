@@ -34,7 +34,7 @@ The **Connect to cluster** dialog shows information about how to connect to your
 1. Copy the command provided to set the `JDBC_DATABASE_URL` environment variable.
 
     {{site.data.alerts.callout_info}}
-    The JDBC connection URL is pre-populated with your username, password, cluster name, and other details. Your password, in particular, will be provided *only once*. Save it in a secure place (Cockroach Labs recommends a password manager) to connect to your cluster in the future. If you forget your password, you can reset it by going to the [**SQL Users** page](../cockroachcloud/user-authorization.html).
+    The JDBC connection URL is pre-populated with your username, password, cluster name, and other details. Your password, in particular, will be provided *only once*. Save it in a secure place (Cockroach Labs recommends a password manager) to connect to your cluster in the future. If you forget your password, you can reset it by going to the **SQL Users** page for the cluster, found at `https://cockroachlabs.cloud/cluster/<CLUSTER ID>/users`.
     {{site.data.alerts.end}}
 
 </div>
@@ -61,7 +61,7 @@ Select **General connection string**, then copy the connection string displayed 
 ? How would you like to connect? General connection string
 Retrieving cluster info: succeeded
  Downloading cluster cert to /Users/maxroach/.postgresql/root.crt: succeeded
-postgresql://maxroach:ThisIsNotAGoodPassword@free-tier4.aws-us-west-2.cockroachlabs.cloud:26257/defaultdb?options=--cluster%3Ddim-dog-147&sslmode=verify-full&sslrootcert=%2FUsers%2Fmaxroach%2F.postgresql%2Froot.crt
+postgresql://maxroach:ThisIsNotAGoodPassword@dim-dog-147.6wr.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full&sslrootcert=%2FUsers%2Fmaxroach%2F.postgresql%2Froot.crt
 ~~~
 </div>
 

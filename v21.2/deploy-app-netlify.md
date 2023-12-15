@@ -9,7 +9,7 @@ docs_area: get_started
 
 This tutorial shows you how to deploy a [Netlify](https://www.netlify.com/) web application that communicates with a {{ site.data.products.serverless }} cluster.
 
-The sample app used in this tutorial simulates [a gaming leaderboard](https://www.cockroachlabs.com/blog/react-typescript-cockroachdb-sample-app). The [Netlify functions](https://www.netlify.com/products/functions/) used for the app are written in TypeScript. The functions use [Prisma](https://www.prisma.io/) to connect to CockroachDB. The app's frontend, also written in TypeScript, uses React, bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The sample app used in this tutorial simulates [a gaming leaderboard](https://www.cockroachlabs.com/blog/react-typescript-cockroachdb-sample-app/). The [Netlify functions](https://www.netlify.com/products/functions/) used for the app are written in TypeScript. The functions use [Prisma](https://www.prisma.io/) to connect to CockroachDB. The app's frontend, also written in TypeScript, uses React, bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 The source code for the completed app is available on GitHub at [https://github.com/cockroachdb/cockroachdb-typescript](https://github.com/cockroachdb/cockroachdb-typescript).
 
@@ -30,7 +30,7 @@ Before starting the tutorial, do the following:
 After the cluster is created, the **Connection info** window appears. Click the **Connection string** tab and copy the connection string to a secure location. You will use this connection string to connect to CockroachDB later in the tutorial.
 
 {{site.data.alerts.callout_info}}
-The connection string is pre-populated with your username, cluster name, and other details, including your password. Your password, in particular, will be provided only once. Save it in a secure place (we recommend a password manager) to connect to your cluster in the future. If you forget your password, you can reset it by going to the [**SQL Users** page](../cockroachcloud/user-authorization.html).
+The connection string is pre-populated with your username, cluster name, and other details, including your password. Your password, in particular, will be provided only once. Save it in a secure place (we recommend a password manager) to connect to your cluster in the future. If you forget your password, you can reset it by going to the **SQL Users** page for the cluster, found at `https://cockroachlabs.cloud/cluster/<CLUSTER ID>/users`.
 {{site.data.alerts.end}}
 
 ## Step 2. Get the code

@@ -9,7 +9,7 @@ docs_area: reference.sql
 The `SHOW GRANTS` [statement](sql-statements.html) lists one of the following:
 
 - The [roles](security-reference/authorization.html#sql-users) granted to [users](security-reference/authorization.html#sql-users) in a cluster.
-- The [privileges](security-reference/authorization.html#managing-privileges) [granted](grant.html) to [users](security-reference/authorization.html#sql-users) on [databases](create-database.html), [schemas](create-schema.html), [tables](create-table.html), or [user-defined types](enum.html).
+- The [privileges](security-reference/authorization.html#managing-privileges) [granted](grant.html) to [users](security-reference/authorization.html#sql-users) on [databases](create-database.html), [user-defined functions](create-function.html), [schemas](create-schema.html), [tables](create-table.html), [user-defined types](enum.html), or [external connections](create-external-connection.html).
 
 ## Syntax
 
@@ -18,7 +18,7 @@ The `SHOW GRANTS` [statement](sql-statements.html) lists one of the following:
 Use the following syntax to show the privileges granted to users on database objects:
 
 ~~~
-SHOW GRANTS [ON [DATABASE | SCHEMA | TABLE | TYPE] <targets...>] [FOR <users...>]
+SHOW GRANTS [ON [DATABASE | FUNCTION | SCHEMA | TABLE | TYPE | EXTERNAL CONNECTION] <targets...>] [FOR <users...>]
 ~~~
 
 When `DATABASE` is omitted, the schema, tables, and types in the [current database](sql-name-resolution.html#current-database) are listed.
@@ -35,7 +35,7 @@ SHOW GRANTS ON ROLE [<roles...>] [FOR <users...>]
 
 Parameter    | Description
 -------------|-----------------------------------------------------------------------------------------------------
-`targets`    | A comma-separated list of database, schema, table, or user-defined type names.<br><br>{{site.data.alerts.callout_info}}To list the privilege grants for all tables in the current database, you can use `SHOW GRANTS ON TABLE *`.{{site.data.alerts.end}}
+`targets`    | A comma-separated list of database, function, schema, table, or user-defined type names.<br><br>If the function name is not unique, you must provide the full function signature.<br><br>To list the privilege grants for all tables in the current database, you can use `SHOW GRANTS ON TABLE *`.
 `users`      | A comma-separated list of the [users](security-reference/authorization.html#sql-users) whose privileges or roles you want to show.
 `roles`      | A comma-separated list of the roles whose grants you want to show.
 
@@ -43,14 +43,16 @@ Parameter    | Description
 
 ### Privilege grants
 
-The `SHOW GRANTS ON [DATABASE | SCHEMA | TABLE | TYPE]` statement can return the following fields, depending on the target object specified:
+The `SHOW GRANTS ON [DATABASE | FUNCTION | SCHEMA | TABLE | TYPE | EXTERNAL CONNECTION]` statement can return the following fields, depending on the target object specified:
 
 Field            | Description
 -----------------|-----------------------------------------------------------------------------------------------------
 `database_name`  | The name of the database.
+`function_name`  | The name of the user-defined function.
 `schema_name`    | The name of the schema.
 `table_name`     | The name of the table.
 `type_name`      | The name of the user-defined type.
+`connection_name`| The name of the external connection.
 `grantee`        | The name of the user or role that was granted the [privilege](security-reference/authorization.html#managing-privileges).
 `privilege_type` | The name of the privilege.
 `is_grantable`   | `TRUE` if the grantee has the grant option on the object; `FALSE` if not.
@@ -329,6 +331,59 @@ To list all grants for all users and roles on the current database and its table
 ----------------+-------------+-----------+---------+-----------------+---------------
   movr          | public      | status    | max     | ALL             | true
 (1 row)
+~~~
+
+### Show grants on user-defined functions
+
+To show the grants defined on the `num_users` function created in [Create a function that references a table](create-function.html#create-a-function-that-references-a-table), run:
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+SHOW GRANTS ON FUNCTION num_users;
+~~~
+
+~~~
+  database_name | schema_name | function_id | function_signature | grantee | privilege_type | is_grantable
+----------------+-------------+-------------+--------------------+---------+----------------+---------------
+  movr          | public      |      100113 | num_users()        | root    | EXECUTE        |      t
+(1 row)
+~~~
+
+### Show all grants on external connections
+
+To show all grants defined on an [external connection](create-external-connection.html), run:
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+SHOW GRANTS ON EXTERNAL CONNECTION my_backup_bucket;
+~~~
+
+~~~
+  connection_name   |  grantee  | privilege_type | is_grantable
+--------------------+-----------+----------------+-------------
+  my_backup_bucket  | alice     | DROP           |     t
+  my_backup_bucket  | alice     | USAGE          |     t
+  my_backup_bucket  | max       | DROP           |     f
+  my_backup_bucket  | max       | USAGE          |     f
+  my_backup_bucket  | root      | ALL            |     f
+(5 rows)
+~~~
+
+### Show grants on external connections by user
+
+To show the grants defined on an [external connection](create-external-connection.html) for a specific user, run:
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+SHOW GRANTS ON EXTERNAL CONNECTION my_backup_bucket FOR alice;
+~~~
+
+~~~
+  connection_name   |  grantee  | privilege_type | is_grantable
+--------------------+-----------+----------------+-------------
+  my_backup_bucket  | alice     | DROP           |     t
+  my_backup_bucket  | alice     | USAGE          |     t
+(2 rows)
 ~~~
 
 ### Show role memberships

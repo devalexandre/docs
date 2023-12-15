@@ -5,5 +5,5 @@ dedicated: CockroachDB Dedicated
 core: CockroachDB Self-Hosted
 # tbd
 enterprise: Enterprise
-# tbd
+
 db: CockroachDB Cloud #i.e., "Sign up for a CockroachDB Cloud account", tbd

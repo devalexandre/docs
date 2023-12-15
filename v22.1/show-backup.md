@@ -24,7 +24,7 @@ For guidance on the syntax for `SHOW BACKUP FROM`, see the [examples](#examples)
 ## Synopsis
 
 <div>
-{% remote_include https://raw.githubusercontent.com/cockroachdb/generated-diagrams/release-22.1/grammar_svg/show_backup.html %}
+{% include {{ page.version.version }}/backups/show-backup-replace-diagram.html %}
 </div>
 
 ## Parameters
@@ -141,6 +141,10 @@ system        | public             | role_members               | table       | 
 ### Show a backup taken with the incremental location option
 
 {% include_cached new-in.html version="v22.1" %} To view an incremental backup that was taken with the `incremental_location` option, run `SHOW BACKUP` with the full backup and incremental backup location following the original `BACKUP` statement.
+
+{{site.data.alerts.callout_info}}
+`SHOW BACKUP` can display backups taken with the `incremental_location` option **or** for [locality-aware backups](take-and-restore-locality-aware-backups.html), but not for locality-aware backups taken with the `incremental_location` option.
+{{site.data.alerts.end}}
 
 You can use the option to show the most recent backup where `incremental_location` has stored the backup:
 
@@ -355,6 +359,10 @@ WITH x AS (SHOW BACKUP FROM '/2021/11/15-150703.21' IN 's3://{bucket name}?AWS_A
   data/710798326337404929.sst
   data/710798326337404929.sst
 ~~~
+
+## Known limitations
+
+- {% include {{ page.version.version }}/known-limitations/show-backup-locality-incremental-location.md %}
 
 ## See also
 

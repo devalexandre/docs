@@ -20,24 +20,24 @@ On [logging in to the {{ site.data.products.db }} Console](https://cockroachlabs
 For each cluster, the following details display:
 
 - The cluster's **Name**
-- The cluster's **Plan Type**, either Serverless or Dedicated
+- The cluster's **Plan Type** (Serverless, Dedicated standard, or Dedicated advanced)
 - The date and time the cluster was **Created**
 - The cluster's current **State**
-- The cluster's **Cloud** provider, either GCP or AWS
+- The cluster's **Cloud** provider, GCP, AWS, or Azure
 - The **Version** of CockroachDB the cluster is running
 - The **Action** button, which is used to:
     - [**Add or remove nodes**](?filters=dedicated#add-or-remove-nodes-from-a-cluster)
     - [**Increase storage**](?filters=dedicated#increase-storage-for-a-cluster)
     - [**Change compute**](?filters=dedicated#change-compute-for-a-cluster)
-    - [**Upgrade major version**](upgrade-to-v21.2.html)
-    - [**Add/remove regions**](?filters=dedicated#add-or-remove-regions-from-a-cluster)
+    - [**Upgrade major version**](upgrade-to-{{site.current_cloud_version}}.html)
+{% comment %} - [**Add/remove regions**](?filters=dedicated#add-or-remove-regions-from-a-cluster) {% endcomment %}
     - [**Delete cluster**](#delete-cluster)
 
 To view and manage a specific cluster, click the name of the cluster. The [**Overview**](#view-cluster-overview) page will display.
 
 ## View cluster overview
 
-The **Overview** page displays details about the selected {{ site.data.products.db }} cluster:
+The [**Overview** page](cluster-overview-page.html?filter=dedicated) displays details about the selected {{ site.data.products.db }} cluster:
 
 - The **Current Charges** and next billing date for the cluster
 - The cluster's **Cloud** provider
@@ -46,16 +46,22 @@ The **Overview** page displays details about the selected {{ site.data.products.
 
     For each node, the page displays the node's `Name` and `Status`, nested under its region.
 
+- The status of security features required for [PCI readiness](#configure-pci-ready-features-dedicated-advanced).
+
 From the **Overview** page, you can connect to your cluster. For more information, see [Connect to Your {{ site.data.products.dedicated }} Cluster](connect-to-your-cluster.html).
 
 ## Scale your cluster
+
+{{site.data.alerts.callout_info}}
+During [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html), {{ site.data.products.dedicated }} clusters on Azure cannot be scaled. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
+{{site.data.alerts.end}}
 
 ### Add or remove nodes from a cluster
 
 You can add or remove nodes from your cluster through the Console. See [Planning your cluster](plan-your-cluster.html) for cluster requirements and recommendations before proceeding.
 
 {{site.data.alerts.callout_info}}
-You cannot scale a multi-node cluster down to a single-node cluster. If you need to scale down to a single-node cluster, [backup](run-bulk-operations.html?filters=cloud#backup-and-restore-data) your cluster and [restore](run-bulk-operations.html?filters=cloud#restore-a-cluster) it into a new single-node cluster.
+You cannot scale a multi-node cluster down to a single-node cluster. If you need to scale down to a single-node cluster, [backup](take-and-restore-customer-owned-backups.html?filters=cloud#back-up-a-cluster) your cluster and [restore](take-and-restore-customer-owned-backups.html?filters=cloud#restore-a-cluster) it into a new single-node cluster.
 {{site.data.alerts.end}}
 
 To add or remove nodes from your cluster:
@@ -113,11 +119,18 @@ AWS disks can only be scaled once every six hours.
 1. On the **Summary** page, verify your new cluster configuration.
 1. Click **Update**.
 
+{% comment %}
 ## Add or remove regions from a cluster
 
-You can add or remove up to nine regions at a time through the Console. Note that you cannot have a two-region cluster, and it will take about 30 minutes to add or remove each region. See [Planning your cluster](plan-your-cluster.html) for cluster requirements and recommendations before proceeding.
+You can add or remove up to nine regions at a time through the Console. Note that you cannot have a two-region cluster, and it will take about 30 minutes to add or remove each region. See [Planning your cluster](plan-your-cluster.html) for cluster requirements and recommendations before proceeding. -->
 
-### Add a region to your cluster
+## Add a region to your cluster
+
+You can add up to nine regions at a time through the Console. See [Planning your cluster](plan-your-cluster.html) for cluster requirements and recommendations before proceeding.
+
+{{site.data.alerts.callout_info}}
+The ability to remove a region from a cluster through the Console is temporarily disabled. If you need to remove a region, [contact support](https://support.cockroachlabs.com).
+{{site.data.alerts.end}}
 
 1. Navigate to the cluster's **Overview** page.
 1. Select **Actions > Edit cluster**.
@@ -137,6 +150,8 @@ You can add or remove up to nine regions at a time through the Console. Note tha
 
 ### Remove a region from your cluster
 
+When you remove a region from a [multi-region](plan-your-cluster.html#multi-region-clusters) cluster, the node in that region with the highest ordinal will be [decommissioned](../{{site.versions["stable"]}}/node-shutdown.html?filters=decommission#decommission-the-node) first. Any ranges on that node will be [up-replicated](../{{site.versions["stable"]}}/ui-replication-dashboard.html#snapshot-data-received) to other nodes, and once decommission is complete that node will be shut down. This process is then repeated for every other node in the region. To remove a region from your cluster:
+
 1. Navigate to the cluster's **Overview** page.
 1. Select **Actions > Edit cluster**.
 
@@ -147,6 +162,7 @@ You can add or remove up to nine regions at a time through the Console. Note tha
 1. Click **Continue to payment**.
 1. In the **Confirmation** dialog, verify your new cluster configuration.
 1. Click **OK**.
+{% endcomment %}
 
 ## Create a database
 
@@ -159,15 +175,30 @@ You can use the [**Databases** page](databases-page.html) to create a new databa
 
 ## Restore data from a backup
 
-Cockroach Labs runs full backups daily and incremental backups hourly for every {{ site.data.products.dedicated }} cluster. The full backups are retained for 30 days and incremental backups for 7 days.
+{{site.data.alerts.callout_info}}
+During [limited access](/docs/{{site.versions["stable"]}}/cockroachdb-feature-availability.html), managed backups are not available for {{ site.data.products.dedicated }} clusters on Azure. Customers can [take and restore from their own backups on Azure storage](take-and-restore-customer-owned-backups.html), including encrypted backups. Refer to [{{ site.data.products.dedicated }} on Azure](cockroachdb-dedicated-on-azure.html).
+{{site.data.alerts.end}}
+
+Cockroach Labs runs full backups daily and incremental backups hourly for every {{ site.data.products.dedicated }} cluster. Full backups are retained for 30 days and incremental backups for 7 days. See the [Use Managed-Service Backups](use-managed-service-backups.html?filters=dedicated#ways-to-restore-data) page for ways to restore data from your cluster's automatic backups in the Console.
+
+Additionally, you can [back up and restore](take-and-restore-customer-owned-backups.html) your {{ site.data.products.dedicated }} cluster manually. For detail on taking backups to your cloud storage, see [Take and Restore Customer-Owned Backups](take-and-restore-customer-owned-backups.html?filters=cloud#back-up-data).
 
 {{site.data.alerts.callout_info}}
 All databases are not backed up at the same time. Each database is backed up every hour based on the time of creation. For larger databases, you might see an hourly CPU spike while the database is being backed up.
 {{site.data.alerts.end}}
 
-To restore your data, [contact us](https://support.cockroachlabs.com).
+## Configure PCI ready features (Dedicated advanced)
 
-Additionally, you can [backup and restore](../{{site.versions["stable"]}}/take-full-and-incremental-backups.html) data on your own.
+{{ site.data.products.dedicated }} advanced clusters have a **PCI ready** panel to monitor the status of security features required for [PCI readiness](pci-dss.html). Feature statuses will update from **INACTIVE** to **ACTIVE** once you configure them. Learn more about configuring these features:
+
+- [{{ site.data.products.db }} Organization Audit logs](cloud-org-audit-logs.html)
+- [Customer-Managed Encryption Keys (CMEK)](managing-cmek.html)
+- [Egress Perimeter Controls](egress-perimeter-controls.html)
+- Single Sign-On (SSO) for your [{{ site.data.products.db }} organization](configure-cloud-org-sso.html) and your [clusters](cloud-sso-sql.html)
+- [Network security](network-authorization.html)
+
+You can also check the status of these features on the [**PCI ready**](cluster-overview-page.html?filters=dedicated#pci-ready-dedicated-advanced) page of the {{ site.data.products.db }} Console.
+
 
 ## Delete cluster
 

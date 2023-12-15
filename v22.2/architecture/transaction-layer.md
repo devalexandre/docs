@@ -198,8 +198,14 @@ The manager accommodates this by allowing transactional requests to acquire lock
 
 However, not all locks are stored directly under the manager's control, so not all locks are discoverable during sequencing. Specifically, write intents (replicated, exclusive locks) are stored inline in the MVCC keyspace, so they are not detectable until request evaluation time. To accommodate this form of lock storage, the manager integrates information about external locks with the concurrency manager structure.
 
+<a name="unreplicated-locks"></a>
+
 {{site.data.alerts.callout_info}}
-Currently, the concurrency manager operates on an unreplicated lock table structure. In the future, we intend to pull all locks, including those associated with [write intents](#write-intents), into the concurrency manager directly through a replicated lock table structure.
+The concurrency manager operates on an unreplicated lock table structure. Unreplicated locks are held only on a single replica in a [range](overview.html#architecture-range), which is typically the [leaseholder](replication-layer.html#leases). They are very fast to acquire and release, but provide no guarantee of survivability across [lease transfers or leaseholder crashes](replication-layer.html#how-leases-are-transferred-from-a-dead-node).
+
+This lack of survivability for unreplicated locks affects SQL statements implemented using them, such as [`SELECT ... FOR UPDATE`](../select-for-update.html#known-limitations).
+
+In the future, we intend to pull all locks, including those associated with [write intents](#write-intents), into the concurrency manager directly through a replicated lock table structure.
 {{site.data.alerts.end}}
 
 Fairness is ensured between requests. In general, if any two requests conflict then the request that arrived first will be sequenced first. As such, sequencing guarantees first-in, first-out (FIFO) semantics. The primary exception to this is that a request that is part of a transaction which has already acquired a lock does not need to wait on that lock during sequencing, and can therefore ignore any queue that has formed on the lock. For other exceptions to this sequencing guarantee, see the [lock table](#lock-table) section below.
@@ -263,7 +269,7 @@ CockroachDB proceeds through the following steps:
 	- It doesn't have a transaction record and its timestamp is outside of the transaction liveness threshold.
 	- Its transaction record hasn't been heartbeated within the transaction liveness threshold.
 
-2. `TxnB` enters the `TxnWaitQueue` to wait for `TxnA` to complete.
+1. `TxnB` enters the `TxnWaitQueue` to wait for `TxnA` to complete.
 
 Additionally, the following types of conflicts that do not involve running into intents can arise:
 
@@ -314,11 +320,11 @@ At a high level, transaction pipelining works as follows:
 
 1. For each statement, the transaction gateway node communicates with the leaseholders (*L*<sub>1</sub>, *L*<sub>2</sub>, *L*<sub>3</sub>, ..., *L*<sub>i</sub>) for the ranges it wants to write to. Since the primary keys in the table above are UUIDs, the ranges are probably split across multiple leaseholders (this is a good thing, as it decreases [transaction conflicts](#transaction-conflicts)).
 
-2. Each leaseholder *L*<sub>i</sub> receives the communication from the transaction gateway node and does the following in parallel:
+1. Each leaseholder *L*<sub>i</sub> receives the communication from the transaction gateway node and does the following in parallel:
   - Creates write intents and sends them to its follower nodes.
   - Responds to the transaction gateway node that the write intents have been sent. Note that replication of the intents is still in-flight at this stage.
 
-3. When attempting to commit, the transaction gateway node then waits for the write intents to be replicated in parallel to all of the leaseholders' followers. When it receives responses from the leaseholders that the write intents have propagated, it commits the transaction.
+1. When attempting to commit, the transaction gateway node then waits for the write intents to be replicated in parallel to all of the leaseholders' followers. When it receives responses from the leaseholders that the write intents have propagated, it commits the transaction.
 
 In terms of the SQL snippet shown above, all of the waiting for write intents to propagate and be committed happens once, at the very end of the transaction, rather than for each individual write. This means that the cost of multiple writes is not `O(n)` in the number of SQL DML statements; instead, it's `O(1)`.
 
@@ -384,7 +390,7 @@ The transaction is now considered atomically committed, even though the state of
 
 1. The transaction record's state is `STAGING`, and its list of pending writes have all succeeded (i.e., the `InFlightWrites` have achieved consensus across the cluster). Any observer of this transaction can verify that its writes have replicated. Transactions in this state are *implicitly committed*.
 
-2. The transaction record's state is `COMMITTED`. Transactions in this state are *explicitly committed*.
+1. The transaction record's state is `COMMITTED`. Transactions in this state are *explicitly committed*.
 
 Despite their logical equivalence, the transaction coordinator now works as quickly as possible to move the transaction record from the `STAGING` to the `COMMITTED` state so that other transactions do not encounter a possibly conflicting transaction in the `STAGING` state and then have to do the work of verifying that the staging transaction's list of pending writes has succeeded. Doing that verification (also known as the "transaction status recovery process") would be slow.
 

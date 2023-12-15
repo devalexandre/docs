@@ -179,8 +179,8 @@ These compressed CSV files will be used to import your data into CockroachDB.
 
 Each node in the CockroachDB cluster needs to have access to the files being imported. There are several ways for the cluster to access the data; for more information on the types of storage [`IMPORT`](import.html) can pull from, see the following:
 
-- [Use Cloud Storage for Bulk Operations](use-cloud-storage-for-bulk-operations.html)
-- [Use a Local File Server for Bulk Operations](use-a-local-file-server-for-bulk-operations.html)
+- [Use Cloud Storage](use-cloud-storage.html)
+- [Use a Local File Server](use-a-local-file-server.html)
 
 {{site.data.alerts.callout_success}}
 We strongly recommend using cloud storage such as Amazon S3 or Google Cloud to host the data files you want to import.
@@ -306,7 +306,7 @@ For example, to import the data from `CUSTOMERS.csv.gz` into a new `CUSTOMERS` t
 
 {% include {{ page.version.version }}/sql/use-import-into.md %}
 
-Then add the [computed columns](computed-columns.html), [constraints](add-constraint.html), and [function-based indexes](create-index.html). For example:
+Then add the [computed columns](computed-columns.html), [constraints](alter-table.html#add-constraint), and [function-based indexes](create-index.html). For example:
 
 {% include_cached copy-clipboard.html %}
 ~~~ sql

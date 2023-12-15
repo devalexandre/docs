@@ -81,10 +81,13 @@ test:
 linkcheck: cockroachdb-build
 	htmltest -s
 
+.PHONY: vale
+vale:
+	vale $(subst $(\n), $( ), $(shell git status --porcelain | cut -c 4- | egrep "\.md"))
+
 vendor:
 	gem install bundler
 	bundle install
-	go install github.com/wjdp/htmltest@master
 
 bootstrap: Gemfile | vendor
 	touch $@
@@ -93,6 +96,10 @@ clean:
 	rm -rf vendor
 	rm -rf _site
 	rm -rf .jekyll-cache
+	rm Gemfile.lock
 
 clean-site:
 	rm -rf _site
+
+clean-cache:
+	rm -rf .jekyll-cache

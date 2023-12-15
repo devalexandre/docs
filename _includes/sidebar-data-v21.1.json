@@ -371,7 +371,7 @@
             ]
           },
           {
-            "title": "Test Your Application",
+            "title": "Test Your Application Locally",
             "urls": [
               "/${VERSION}/local-testing.html"
             ]
@@ -808,7 +808,7 @@
                 "title": "Kubernetes Single-Cluster Deployment",
                 "urls": [
                   "/${VERSION}/deploy-cockroachdb-with-kubernetes.html",
-                  "/${VERSION}/orchestrate-cockroachdb-with-kubernetes-insecure.html"
+                  "/${VERSION}/deploy-cockroachdb-with-kubernetes-insecure.html"
                 ]
               },
               {

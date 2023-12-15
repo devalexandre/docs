@@ -6,6 +6,10 @@ keywords: gin, gin index, gin indexes, inverted index, inverted indexes, acceler
 docs_area: reference.sql
 ---
 
+{{site.data.alerts.callout_danger}}
+The statements on this page are **deprecated** as of v23.1 and will be removed in a future release. To move data into CockroachDB, use [`IMPORT INTO`](import-into.html) or [`COPY FROM`](copy-from.html). For more details, see [Move your data to CockroachDB](migration-overview.html#step-2-move-your-data-to-cockroachdb).
+{{site.data.alerts.end}}
+
 The `IMPORT` [statement](sql-statements.html) imports the following types of data into CockroachDB:
 
 - [PostgreSQL dump files][postgres]
@@ -35,13 +39,27 @@ Optimize import operations in your applications by following our [Import Perform
 
 ## Required privileges
 
-#### Table privileges
+### Table privileges
 
 The user must have the `CREATE` [privileges](security-reference/authorization.html#managing-privileges) on the target database.
 
-#### Source privileges
+### Source privileges
 
-{% include {{ page.version.version }}/misc/source-privileges.md %}
+{% include {{ page.version.version }}/misc/external-io-privilege.md %}
+
+Either the `EXTERNALIOIMPLICITACCESS` [system-level privilege](security-reference/authorization.html#supported-privileges) or the [`admin`](security-reference/authorization.html#admin-role) role is required for the following scenarios:
+
+- Interacting with a cloud storage resource using [`IMPLICIT` authentication](cloud-storage-authentication.html).
+- Using a [custom endpoint](https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/) on S3.
+- Using the [`cockroach nodelocal upload`](cockroach-nodelocal-upload.html) command.
+- Using [HTTP](use-a-local-file-server.html) or HTTPS.
+
+No special privilege is required for: 
+
+- Interacting with an Amazon S3 and Google Cloud Storage resource using `SPECIFIED` credentials. Azure Storage is always `SPECIFIED` by default.
+- Using [Userfile](use-userfile-storage.html) storage.
+
+{% include {{ page.version.version }}/misc/bulk-permission-note.md %}
 
 {% include {{ page.version.version }}/misc/s3-compatible-warning.md %}
 
@@ -75,7 +93,7 @@ Key                 | <div style="width:130px">Context</div> | Value            
 `skip_foreign_keys`    | `PGDUMP`, `MYSQLDUMP` | Ignore foreign key constraints in the dump file's DDL. **Default:** `Off`. May be necessary to import a table with unsatisfied foreign key constraints from a full database dump.
 `max_row_size`         | `PGDUMP`        | Override limit on line size. **Default:** `0.5MB`. This setting may need to be tweaked if your PostgreSQL dump file has extremely long lines, for example as part of a `COPY` statement.
 `ignore_unsupported_statements` | `PGDUMP`  |  Ignore SQL statements in the dump file that are unsupported by CockroachDB.
-`log_ignored_statements` | `PGDUMP` |  Log unsupported statements when using `ignore_unsupported_statements` to a specified destination (i.e., [cloud storage](use-cloud-storage-for-bulk-operations.html) or [userfile storage](use-userfile-for-bulk-operations.html)).
+`log_ignored_statements` | `PGDUMP` |  Log unsupported statements when using `ignore_unsupported_statements` to a specified destination (i.e., [cloud storage](use-cloud-storage.html) or [userfile storage](use-userfile-storage.html)).
 <a name="options-detached"></a>`DETACHED`             | N/A            |  When an import runs in `DETACHED` mode, it will execute asynchronously and the job ID will be returned immediately without waiting for the job to finish. Note that with `DETACHED` specified, further job information and the job completion status will not be returned. For more on the differences between the returned job data, see the [example](import.html#run-an-import-within-a-transaction) below. To check on the job status, use the [`SHOW JOBS`](show-jobs.html) statement. <br><br>To run an import within a [transaction](transactions.html), use the `DETACHED` option.
 
 For examples showing how to use these options, see the [Examples](#examples) section below.
@@ -84,7 +102,7 @@ For instructions and working examples showing how to migrate data from other dat
 
 ## Requirements
 
-### Prerequisites
+### Before you begin
 
 Before using `IMPORT`, you should have:
 
@@ -124,9 +142,11 @@ On [`cockroach start`](cockroach-start.html), if you set `--max-disk-temp-storag
 
 CockroachDB uses the URL provided to construct a secure API call to the service you specify. The URL structure depends on the type of file storage you are using. For more information, see the following:
 
-- [Use Cloud Storage for Bulk Operations](use-cloud-storage-for-bulk-operations.html)
-- [Use `userfile` for Bulk Operations](use-userfile-for-bulk-operations.html)
-- [Use a Local File Server for Bulk Operations](use-a-local-file-server-for-bulk-operations.html)
+- [Use Cloud Storage](use-cloud-storage.html)
+- [Use `userfile` Storage](use-userfile-storage.html)
+- [Use a Local File Server](use-a-local-file-server.html)
+
+{% include {{ page.version.version }}/misc/external-connection-note.md %}
 
 ### Table users and privileges
 
@@ -154,17 +174,7 @@ If initiated correctly, the statement returns when the import is finished or if 
 
 ## Examples
 
-The following provide connection examples to cloud storage providers. For more information on connecting to different storage options, read [Use Cloud Storage for Bulk Operations](use-cloud-storage-for-bulk-operations.html).
-
-<div class="filters clearfix">
-  <button class="filter-button" data-scope="s3">Amazon S3</button>
-  <button class="filter-button" data-scope="azure">Azure Storage</button>
-  <button class="filter-button" data-scope="gcs">Google Cloud Storage</button>
-</div>
-
-<section class="filter-content" markdown="1" data-scope="s3">
-
-{% include {{ page.version.version }}/misc/auth-intro-examples.md %}
+{% include {{ page.version.version }}/backups/bulk-auth-options.md %}
 
 ### Import a PostgreSQL database dump
 
@@ -278,240 +288,6 @@ job_id             |  status   | fraction_completed | rows | index_entries | byt
 (1 row)
 ~~~
 
-</section>
-
-<section class="filter-content" markdown="1" data-scope="azure">
-
-### Import a PostgreSQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT PGDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}'
-    WITH ignore_unsupported_statements;
-~~~
-
-For this command to succeed, you need to have created the dump file with specific flags to `pg_dump`, and use the `WITH ignore_unsupported_statements` clause. For more information, see [Migrate from PostgreSQL](migrate-from-postgres.html).
-
-### Import a table from a PostgreSQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}'
-    WITH skip_foreign_keys WITH ignore_unsupported_statements;
-~~~
-
-If the table schema specifies foreign keys into tables that do not exist yet, the `WITH skip_foreign_keys` shown may be needed. For more information, see the list of [import options](#import-options).
-
-For this command to succeed, you need to have created the dump file with specific flags to `pg_dump`. For more information, see [Migrate from PostgreSQL](migrate-from-postgres.html).
-
-### Import a MySQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT MYSQLDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}';
-~~~
-
-For more detailed information about importing data from MySQL, see [Migrate from MySQL](migrate-from-mysql.html).
-
-### Import a table from a MySQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM MYSQLDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}'
-    WITH skip_foreign_keys;
-~~~
-
-If the table schema specifies foreign keys into tables that do not exist yet, the `WITH skip_foreign_keys` option may be needed. For more information, see the list of [import options](#import-options).
-
-For more detailed information about importing data from MySQL, see [Migrate from MySQL](migrate-from-mysql.html).
-
-### Import a limited number of rows
-
-The `row_limit` option determines the number of rows to import. This option will import the first *n* rows from each table in the dump file. It is useful for finding errors quickly before executing a more time- and resource-consuming import. Imported tables can be inspected for their schema and data, but must be [dropped](drop-table.html) before running the actual import.
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT PGDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}'
-    WITH row_limit = '10';
-~~~
-
-### Import a compressed file
-
-CockroachDB chooses the decompression codec based on the filename (the common extensions `.gz` or `.bz2` and `.bz`) and uses the codec to decompress the file during import.
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'azure://{CONTAINER NAME}/{employees.sql.gz}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}';
-~~~
-
-Optionally, you can use the `decompress` option to specify the codec to be used for decompressing the file during import:
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'azure://{CONTAINER NAME}/{employees.sql.gz}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}'
-    WITH decompress = 'gzip';
-~~~
-
-### Run an import within a transaction
-
-The `DETACHED` option allows an import to be run asynchronously, returning the job ID immediately once initiated. You can run imports within transactions by specifying the `DETACHED` option.
-
-To use the `DETACHED` option with `IMPORT` in a transaction:
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-BEGIN;
-
-CREATE DATABASE newdb;
-
-SET DATABASE = newdb;
-
-IMPORT TABLE employees FROM PGDUMP 'azure://{CONTAINER NAME}/{employees.sql}?AZURE_ACCOUNT_NAME={ACCOUNT NAME}&AZURE_ACCOUNT_KEY={ENCODED KEY}' WITH DETACHED;
-
-COMMIT;
-~~~
-
-The job ID is returned immediately without waiting for the job to finish:
-
-~~~
-        job_id
-----------------------
-  592786066399264769
-(1 row)
-~~~
-
-**Without** the `DETACHED` option, `IMPORT` will block the SQL connection until the job completes. Once finished, the job status and more detailed job data is returned:
-
-~~~
-job_id             |  status   | fraction_completed | rows | index_entries | bytes
----------------------+-----------+--------------------+------+---------------+--------
-652471804772712449 | succeeded |                  1 |   50 |             0 |  4911
-(1 row)
-~~~
-
-</section>
-
-<section class="filter-content" markdown="1" data-scope="gcs">
-
-{% include {{ page.version.version }}/backups/gcs-auth-note.md %}
-
-### Import a PostgreSQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT PGDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}'
-    WITH ignore_unsupported_statements;
-~~~
-
-For this command to succeed, you need to have created the dump file with specific flags to `pg_dump`, and use the `WITH ignore_unsupported_statements` clause. For more information, see [Migrate from PostgreSQL](migrate-from-postgres.html).
-
-### Import a table from a PostgreSQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}'
-    WITH skip_foreign_keys WITH ignore_unsupported_statements;
-~~~
-
-If the table schema specifies foreign keys into tables that do not exist yet, the `WITH skip_foreign_keys` option may be needed. For more information, see the list of [import options](#import-options).
-
-For this command to succeed, you need to have created the dump file with specific flags to `pg_dump`. For more information, see [Migrate from PostgreSQL](migrate-from-postgres.html).
-
-### Import a MySQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT MYSQLDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}';
-~~~
-
-For more detailed information about importing data from MySQL, see [Migrate from MySQL](migrate-from-mysql.html).
-
-### Import a table from a MySQL database dump
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM MYSQLDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}'
-    WITH skip_foreign_keys;
-~~~
-
-If the table schema specifies foreign keys into tables that do not exist yet, the `WITH skip_foreign_keys` option may be needed. For more information, see the list of [import options](#import-options).
-
-For more detailed information about importing data from MySQL, see [Migrate from MySQL](migrate-from-mysql.html).
-
-### Import a limited number of rows
-
-The `row_limit` option determines the number of rows to import. This option will import the first *n* rows from each table in the dump file. It is useful for finding errors quickly before executing a more time- and resource-consuming import. Imported tables can be inspected for their schema and data, but must be [dropped](drop-table.html) before running the actual import.
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT PGDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}'
-    WITH row_limit = '10';
-~~~
-
-### Import a compressed file
-
-CockroachDB chooses the decompression codec based on the filename (the common extensions `.gz` or `.bz2` and `.bz`) and uses the codec to decompress the file during import.
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'gs://{BUCKET NAME}/{employees.sql.gz}?AUTH=specified&CREDENTIALS={ENCODED KEY}';
-~~~
-
-Optionally, you can use the `decompress` option to specify the codec for decompressing the file during import:
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-IMPORT TABLE employees
-    FROM PGDUMP 'gs://{BUCKET NAME}/{employees.sql.gz}?AUTH=specified&CREDENTIALS={ENCODED KEY}'
-    WITH decompress = 'gzip';
-~~~
-
-### Run an import within a transaction
-
- The `DETACHED` option allows an import to be run asynchronously, returning the job ID immediately once initiated. You can run imports within transactions by specifying the `DETACHED` option.
-
-To use the `DETACHED` option with `IMPORT` in a transaction:
-
-{% include_cached copy-clipboard.html %}
-~~~ sql
-> BEGIN;
-
-CREATE DATABASE newdb;
-
-SET DATABASE = newdb;
-
-IMPORT TABLE employees FROM PGDUMP 'gs://{BUCKET NAME}/{employees.sql}?AUTH=specified&CREDENTIALS={ENCODED KEY}' WITH DETACHED;
-
-COMMIT;
-~~~
-
-The job ID is returned immediately without waiting for the job to finish:
-
-~~~
-        job_id
-----------------------
-  592786066399264769
-(1 row)
-~~~
-
-**Without** the `DETACHED` option, `IMPORT` will block the SQL connection until the job completes. Once finished, the job status and more detailed job data is returned:
-
-~~~
-job_id             |  status   | fraction_completed | rows | index_entries | bytes
----------------------+-----------+--------------------+------+---------------+--------
-652471804772712449 | succeeded |                  1 |   50 |             0 |  4911
-(1 row)
-~~~
-
-</section>
-
 ### Import a table from a local file
 
 You can import a file from `nodelocal`, which is the external IO directory on a node's local file system. To import from `nodelocal`,  a `nodeID` is required and the data files will be in the `extern` directory of the specified node.
@@ -556,13 +332,50 @@ IMPORT TABLE customers FROM PGDUMP 'nodelocal://2/customers.sql';
 
 You can also use the [`cockroach nodelocal upload`](cockroach-nodelocal-upload.html) command to upload a file to the external IO directory on a node's (the gateway node, by default) local file system.
 
+
+### Import data into your {{ site.data.products.db }} cluster
+
+You can import data into your {{ site.data.products.db }} cluster using either [`userfile`](use-userfile-storage.html) or [cloud storage](use-cloud-storage.html):
+
+<div class="filters clearfix">
+  <button class="filter-button" data-scope="userfile"><code>userfile</code></button>
+  <button class="filter-button" data-scope="cloud">Cloud storage</button>
+</div>
+
+<section class="filter-content" markdown="1" data-scope="userfile">
+
+#### Import using `userfile`
+
+{% include cockroachcloud/userfile-examples/import-into-userfile.md %}
+
+</section>
+
+<section class="filter-content" markdown="1" data-scope="cloud">
+
+#### Import using cloud storage
+
+To import a table into your cluster:
+
+{% include_cached copy-clipboard.html %}
+~~~ sql
+> IMPORT TABLE customers (
+		id UUID PRIMARY KEY,
+		name TEXT,
+		INDEX name_idx (name)
+)
+CSV DATA ('s3://{BUCKET NAME}/{customer-data}?AWS_ACCESS_KEY_ID={ACCESS KEY}&AWS_SECRET_ACCESS_KEY={SECRET ACCESS KEY}')
+;
+~~~
+
+</section>
+
 ## Known limitation
 
 {% include {{ page.version.version }}/known-limitations/import-high-disk-contention.md %}
 
 ## See also
 
-- [Use Cloud Storage for Bulk Operations](use-cloud-storage-for-bulk-operations.html)
+- [Use Cloud Storage](use-cloud-storage.html)
 - [Migration Overview](migration-overview.html)
 - [Migrate from MySQL][mysql]
 - [Migrate from PostgreSQL][postgres]

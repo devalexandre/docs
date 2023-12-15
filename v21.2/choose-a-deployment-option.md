@@ -5,7 +5,7 @@ toc: true
 docs_area: deploy
 ---
 
-Cockroach Labs offers three ways to deploy CockroachDB: two managed services&mdash;{{ site.data.products.serverless }} and {{ site.data.products.dedicated }}&mdash;and a self managed option&mdash;CockroachDB Self-Hosted. To help you choose which deployment option will best satisfy your requirements, this page describes the application types each deployment is designed for and lists some of the deployment option features that support the application types. For a full feature comparison list, see [CockroachDB: A cloud native, globally-distributed SQL database](https://www.cockroachlabs.com/get-started-cockroachdb).
+Cockroach Labs offers three ways to deploy CockroachDB: two managed services&mdash;{{ site.data.products.serverless }} and {{ site.data.products.dedicated }}&mdash;and a self managed option&mdash;CockroachDB Self-Hosted. To help you choose which deployment option will best satisfy your requirements, this page describes the application types each deployment is designed for and lists some of the deployment option features that support the application types. For a full feature comparison list, see [CockroachDB: A cloud native, globally-distributed SQL database](https://www.cockroachlabs.com/get-started-cockroachdb/).
 
 <table>
   <tr>
@@ -27,7 +27,7 @@ Cockroach Labs offers three ways to deploy CockroachDB: two managed services&mda
         <li><b>Scale</b>: Automatic transactional capacity scaling (up and down) depending on database activity. Ability to scale down to zero and consume zero resources.</li>
         <li><b>Availability</b>: High availability. Data replication in triplicate within a single region. Ensures outage survival by spreading replicas across availability zones.</li>
         <li><b>Operations</b>: Cockroach Labs SRE team manages and maintains every cluster. Backups every three hours.</li>
-        <li><b>Cost</b>: Free for 5GiB of storage and 250M <a href="../cockroachcloud/serverless-faqs.html#what-is-a-request-unit">Request Units</a>. Consumption based billing and spend limits enforce budget requirements.</li>
+        <li><b>Cost</b>: Free for 10 GiB of storage and 50M <a href="../cockroachcloud/serverless-faqs.html#what-is-a-request-unit">Request Units</a>. Consumption based billing and resource limits enforce budget requirements.</li>
         <li><b>Resource isolation</b>: Shared CockroachDB software and infrastructure. Data is protected and not shared between deployments.</li>
         <li><b>Support</b>: Provided by CockroachDB <a href="https://forum.cockroachlabs.com/">community forum</a> and public <a href="https://cockroachdb.slack.com/">Slack workspace</a>.</li>
       </ul></td>

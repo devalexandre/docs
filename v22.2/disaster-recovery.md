@@ -1,6 +1,6 @@
 ---
 title: Disaster Recovery
-summary: Learn how about CockrachDB disaster recovery capabilities and what to do if you encounter an issue.
+summary: Learn how about CockroachDB disaster recovery capabilities and what to do if you encounter an issue.
 toc: true
 docs_area: manage
 ---
@@ -321,7 +321,7 @@ If your cluster is running, you do not have a backup that encapsulates the time 
 
 If you have corrupted data in a database or table, [restore](restore.html) the object from a prior [backup](backup.html). If revision history is in the backup, you can restore from a [point in time](take-backups-with-revision-history-and-restore-from-a-point-in-time.html).
 
-Instead of dropping the corrupted table or database, we recommend [renaming the table](rename-table.html) or [renaming the database](rename-database.html) so you have historical data to compare to later. If you drop a database, the database cannot be referenced with `AS OF SYSTEM TIME` queries (see [#51380](https://github.com/cockroachdb/cockroach/issues/51380) for more information), and you will need to take a backup that is backdated to the system time when the database still existed.
+Instead of dropping the corrupted table or database, we recommend [renaming the table](alter-table.html#rename-to) or [renaming the database](alter-database.html#rename-to) so you have historical data to compare to later. If you drop a database, the database cannot be referenced with `AS OF SYSTEM TIME` queries (see [#51380](https://github.com/cockroachdb/cockroach/issues/51380) for more information), and you will need to take a backup that is backdated to the system time when the database still existed.
 
 {{site.data.alerts.callout_info}}
 If the table you are restoring has foreign keys, [careful consideration](restore.html#remove-the-foreign-key-before-restore) should be applied to make sure data integrity is maintained during the restore process.
@@ -338,8 +338,8 @@ CockroachDB maintains a secure environment for your data. However, there are bad
 ### Changefeeds to cloud storage
 
 1. [Cancel the changefeed job](cancel-job.html) immediately and [record the high water timestamp](monitor-and-debug-changefeeds.html#monitor-a-changefeed) for where the changefeed was stopped.
-2. Remove the access keys from the identity management system of your cloud provider and replace with a new set of access keys.
-3. [Create a new changefeed](create-changefeed.html#start-a-new-changefeed-where-another-ended) with the new access credentials using the last high water timestamp.
+1. Remove the access keys from the identity management system of your cloud provider and replace with a new set of access keys.
+1. [Create a new changefeed](create-changefeed.html#start-a-new-changefeed-where-another-ended) with the new access credentials using the last high water timestamp.
 
 ### Encryption at rest
 

@@ -3,6 +3,7 @@ title: Transport Layer Security (TLS) and Public Key Infrastructure (PKI)
 summary: Overview of PKI and TLS and how to implement them with CockroachDB
 toc: true
 docs_area: reference.security
+security: true
 ---
 
 This page provides a conceptual overview of Transport Layer Security (TLS) and the related notion of Public Key Infrastructure (PKI), and sketches the security-architecture considerations in play when using CockroachDB.
@@ -172,6 +173,10 @@ If the connection is mutually TLS-authenticated (i.e., if the client authenticat
 
 ### `--accept-sql-without-tls` mode
 
+{{site.data.alerts.callout_info}}
+{% include feature-phases/preview.md %}
+{{site.data.alerts.end}}
+
 CockroachDB clusters can be started with this option in order to allow clients to opt out of TLS server authentication.
 
 Client connections can be made with `sslmode=on`, in which case TLS authentication proceeds as in default mode.
@@ -278,7 +283,7 @@ CockroachDB can be [configured to check an OCSP responder](../manage-certs-revok
 
 #### Short-lived certificates
 
-For many self-hosted customers, we recommend a strategy of relying on a short "lifetime", i.e., validity duration, for credentials (private key/public certificate pairs) issued to CRDB nodes and SQL clients. This strategy is relatively easy to implement in an automated pipeline using cloud native secrets management tools such as GCP secrets manager or Hashicorp Vault to securely propagate certificates, and synergizes with the use of cloud native CA tools, such as GCP's Certficiate Authority Service (CAS). Using these tools, an operator can create an automation pipeline to generate and propagate certificates.
+For many self-hosted customers, we recommend a strategy of relying on a short "lifetime", i.e., validity duration, for credentials (private key/public certificate pairs) issued to CRDB nodes and SQL clients. This strategy is relatively easy to implement in an automated pipeline using cloud native secrets management tools such as GCP secrets manager or HashiCorp Vault to securely propagate certificates, and synergizes with the use of cloud native CA tools, such as GCP's Certficiate Authority Service (CAS). Using these tools, an operator can create an automation pipeline to generate and propagate certificates.
 
 By relying on certficiates with a short validity duration, we can greatly reduce the threat posed by such a certificate being leaked, since the certificate's value to an attacker is limited by its validity duration.
 To maintain connection to a network secured by short-lived credentials, a would-be-attacker must maintain access to the secret manager used to propagate the credentials. This consolidates the risk surface of the certificate itself into the shadow of access to the secrets manager.

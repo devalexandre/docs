@@ -2,7 +2,6 @@
 title: Set up a Virtual Environment for Developing Global Applications
 summary: This page guides you through setting up a demo multi-region CockroachDB cluster, and a virtual development environment.
 toc: true
-redirect_from: multi-region-setup.html
 ---
 
 This page guides you through setting up a virtual environment for developing and debugging a global application. It is the third section of the [Develop and Deploy a Global Application](movr-flask-overview.html) tutorial. In this section, you will set up a demo CockroachDB cluster, initialize the database, and set up a virtual development environment.
@@ -61,7 +60,7 @@ For debugging and development purposes, you can use the [`cockroach demo`](cockr
     ~~~
 
 {{site.data.alerts.callout_info}}
-In production, you want to start a secure CockroachDB cluster, with nodes on machines located in different areas of the world. For instructions on deploying a multi-region CockroachDB cluster for this application, using [{{ site.data.products.dedicated }}](https://www.cockroachlabs.com/product/cockroachcloud/), see [Deploy a Global, Serverless Application](movr-flask-deployment.html).
+In production, you want to start a secure CockroachDB cluster, with nodes on machines located in different areas of the world. For instructions on deploying a multi-region CockroachDB cluster for this application, using {{ site.data.products.dedicated }}, see [Deploy a Global, Serverless Application](movr-flask-deployment.html).
 {{site.data.alerts.end}}
 
 

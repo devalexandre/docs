@@ -13,6 +13,7 @@ CockroachDB stores the contents of the following data types in GIN indexes:
 - [JSONB](jsonb.html)
 - [Arrays](array.html)
 - [Spatial data (`GEOMETRY` and `GEOGRAPHY` types)](spatial-indexes.html)
+- [Strings (using trigram indexes)](trigram-indexes.html)
 
 {{site.data.alerts.callout_success}}For a hands-on demonstration of using GIN indexes to improve query performance on a <code>JSONB</code> column, see the <a href="demo-json-support.html">JSON tutorial</a>.{{site.data.alerts.end}}
 
@@ -61,20 +62,23 @@ This lets you search based on subcomponents.
 
 You can use GIN indexes to improve the performance of queries using `JSONB` or `ARRAY` columns. You can create them:
 
-- At the same time as the table with the `INVERTED INDEX` clause of [`CREATE TABLE`](create-table.html#create-a-table-with-secondary-and-gin-indexes).
-- For existing tables with [`CREATE INDEX`](create-index.html):
+- Using the PostgreSQL-compatible syntax [`CREATE INDEX ... USING GIN`](create-index.html):
 
-  - `CREATE INVERTED INDEX`
+    ~~~ sql
+    CREATE INDEX {optional name} ON {table} USING GIN ({column});
+    ~~~
 
-        ~~~ sql
-        CREATE INVERTED INDEX <optional name> ON <table> (<column>);
-        ~~~
+    You can also specify the `jsonb_ops` or `array_ops` opclass (for `JSONB` and `ARRAY` columns, respectively) using the syntax:
 
-  - PostgreSQL-compatible [`CREATE INDEX ... USING GIN`]:
+    ~~~ sql
+    CREATE INDEX {optional name} ON {table} USING GIN ({column} {opclass});
+    ~~~
 
-        ~~~ sql
-        CREATE INDEX <optional name> ON <table> USING GIN (<column>);
-        ~~~
+- While creating the table, using the syntax [`CREATE INVERTED INDEX`](create-table.html#create-a-table-with-secondary-and-gin-indexes):
+
+    ~~~ sql
+    CREATE INVERTED INDEX {optional name} ON {table} ({column});
+    ~~~
 
 ### Selection
 
@@ -106,7 +110,7 @@ GIN indexes on `JSONB` columns support the following comparison operators:
 
 - **is contained by**: [`<@`](functions-and-operators.html#operators)
 - **contains**: [`@>`](functions-and-operators.html#operators)
-- **equals**: [`=`](functions-and-operators.html#operators). You must reached into the JSON document with the [`->`](functions-and-operators.html#supported-operations) operator. For example:
+- **equals**: [`=`](functions-and-operators.html#operators). To use `=`, you must also reach into the JSON document with the [`->`](functions-and-operators.html#supported-operations) operator. For example:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
@@ -133,14 +137,14 @@ If you require comparisons using [`<`](functions-and-operators.html#operators), 
         );
     ~~~
 
-2. Create an index on the computed column:
+1. Create an index on the computed column:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
     > CREATE INDEX test_idx ON test (foo);
     ~~~
 
-3. Execute the query with the comparison:
+1. Execute the query with the comparison:
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
@@ -171,7 +175,7 @@ CREATE TABLE test (
 
 {% include {{page.version.version}}/sql/indexes-regional-by-row.md %}
 
-For an example that uses unique indexes but applies to all indexes on `REGIONAL BY ROW` tables, see [Add a unique index to a `REGIONAL BY ROW` table](add-constraint.html#add-a-unique-index-to-a-regional-by-row-table).
+For an example that uses unique indexes but applies to all indexes on `REGIONAL BY ROW` tables, see [Add a unique index to a `REGIONAL BY ROW` table](alter-table.html#add-a-unique-index-to-a-regional-by-row-table).
 
 ## Multi-column GIN indexes
 
@@ -365,6 +369,10 @@ SELECT * FROM users@idx_online_users WHERE user_profile->'online' = 'true' AND u
 (1 row)
 ~~~
 
+### Create a trigram index on a STRING column
+
+For an example showing how to create a trigram index on a [`STRING`](string.html) column, see [Trigram Indexes](trigram-indexes.html#examples).
+
 ### Inverted join examples
 
 {% include {{ page.version.version }}/sql/inverted-joins.md %}
@@ -372,6 +380,11 @@ SELECT * FROM users@idx_online_users WHERE user_profile->'online' = 'true' AND u
 ## See also
 
 - [Indexes](indexes.html)
+- [Trigram Indexes](trigram-indexes.html)
+- [`JSONB`](jsonb.html)
+- [Arrays](array.html)
+- [Spatial data (`GEOMETRY` and `GEOGRAPHY` types)](spatial-indexes.html)
+- [`STRING`](string.html)
 - [`CREATE INDEX`](create-index.html)
 - [Computed Columns](computed-columns.html)
 - [SQL Statements](sql-statements.html)

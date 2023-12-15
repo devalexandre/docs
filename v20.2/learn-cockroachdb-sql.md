@@ -196,7 +196,7 @@ To show the indexes on a table, use [`SHOW INDEX FROM`](show-index.html) followe
 
 ## Query a table
 
-To query a table, use [`SELECT`](select-clause.html) followed by a comma-separated list of the columns to be returned and the table from which to retrieve the data. You can also use the [`LIMIT`](https://www.cockroachlabs.com/docs/dev/limit-offset.html) clause to restrict the number of rows retrieved:
+To query a table, use [`SELECT`](select-clause.html) followed by a comma-separated list of the columns to be returned and the table from which to retrieve the data. You can also use the [`LIMIT`](limit-offset.html) clause to restrict the number of rows retrieved:
 
 {% include copy-clipboard.html %}
 ~~~ sql
@@ -347,5 +347,5 @@ When you no longer need a table, use [`DROP TABLE`](drop-table.html) followed by
 
 - Explore all [SQL Statements](sql-statements.html)
 - [Use the built-in SQL client](cockroach-sql.html) to execute statements from a shell or directly from the command line
-- [Install the client driver](install-client-drivers.html) for your preferred language and [build an app](hello-world-example-apps.html)
+- [Install the client driver](install-client-drivers.html) for your preferred language and [build an app](example-apps.html)
 - [Explore core CockroachDB features](demo-replication-and-rebalancing.html) like automatic replication, rebalancing, and fault tolerance

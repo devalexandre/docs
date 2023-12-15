@@ -12,47 +12,98 @@ Included in this guide:
 - [Style and tone](#style-and-tone)
 - [Inclusive language](#inclusive-language)
   - [Avoid ableist language](#avoid-ableist-language)
+    - [Examples](#examples)
   - [Avoid unnecessarily gendered language](#avoid-unnecessarily-gendered-language)
+    - [Examples](#examples-1)
   - [Write diverse and inclusive examples](#write-diverse-and-inclusive-examples)
   - [Avoid unnecessarily violent language](#avoid-unnecessarily-violent-language)
+    - [Examples](#examples-2)
   - [Write accessible documentation](#write-accessible-documentation)
   - [Write about features and users in inclusive ways](#write-about-features-and-users-in-inclusive-ways)
+    - [Examples](#examples-3)
 - [Capitalization and punctuation](#capitalization-and-punctuation)
   - [Capitalization rules](#capitalization-rules)
   - [Punctuation rules](#punctuation-rules)
 - [Vale](#vale)
 - [File conventions](#file-conventions)
+  - [Examples](#examples-4)
+  - [File naming](#file-naming)
 - [Content types](#content-types)
   - [Concept](#concept)
+    - [Examples](#examples-5)
   - [Task](#task)
+    - [Examples](#examples-6)
   - [Reference](#reference)
+    - [Examples](#examples-7)
   - [Definition](#definition)
+    - [Examples](#examples-8)
 - [Standard sections](#standard-sections)
   - [Glossary](#glossary)
+    - [Examples](#examples-9)
+  - [Before you begin](#before-you-begin)
   - [See also](#see-also)
-  - [Prerequisites](#prerequisites)
 - [Page types](#page-types)
-  - [Tutorial](#tutorials)
+  - [Tutorial](#tutorial)
+    - [Examples](#examples-10)
   - [Best practice](#best-practice)
+    - [Examples](#examples-11)
   - [Troubleshooting](#troubleshooting)
+    - [Examples](#examples-12)
   - [FAQ](#faq)
+    - [Examples](#examples-13)
   - [Release note](#release-note)
+    - [Examples](#examples-14)
 - [Components](#components)
   - [Page title](#page-title)
   - [Headings](#headings)
+    - [Examples](#examples-15)
   - [Text format](#text-format)
+    - [Bold](#bold)
+    - [Monospace](#monospace)
+    - [Quotation marks](#quotation-marks)
+    - [Italics](#italics)
+    - [Underline](#underline)
   - [Links](#links)
+    - [GitHub issues and pull requests](#github-issues-and-pull-requests)
   - [Tips, notes, and warnings](#tips-notes-and-warnings)
+    - [Tips](#tips)
+    - [Notes](#notes)
+    - [Warnings](#warnings)
+    - [CockroachDB version callout](#cockroachdb-version-callout)
   - [Known limitations](#known-limitations)
+    - [What are known limitations?](#what-are-known-limitations)
+    - [Where to find known limitations](#where-to-find-known-limitations)
+    - [When to document known limitations](#when-to-document-known-limitations)
+    - [Who documents known limitations](#who-documents-known-limitations)
+    - [Where to document known limitations](#where-to-document-known-limitations)
+    - [How to document known limitations](#how-to-document-known-limitations)
   - [Product names](#product-names)
   - [Code](#code)
-  - [Examples](#examples)
+    - [Inline code](#inline-code)
+    - [Code block](#code-block)
+    - [Placeholders](#placeholders)
+    - [How to escape special characters](#how-to-escape-special-characters)
+  - [Examples](#examples-16)
   - [Version tags](#version-tags)
   - [Version references](#version-references)
   - [Tables](#tables)
+    - [Markdown](#markdown)
+    - [HTML](#html)
   - [Lists](#lists)
+    - [Nest lists](#nest-lists)
+    - [Nest paragraphs or code blocks](#nest-paragraphs-or-code-blocks)
+    - [Use ordered lists when there are multiple steps in a section](#use-ordered-lists-when-there-are-multiple-steps-in-a-section)
   - [Images](#images)
+  - [Videos](#videos)
   - [Include files](#include-files)
+    - [Basic include file usage](#basic-include-file-usage)
+    - [Advanced include file usage](#advanced-include-file-usage)
+      - [Different content depending on page name](#different-content-depending-on-page-name)
+      - [Remote includes](#remote-includes)
+    - [Filter tabs](#filter-tabs)
+    - [Technical limitations of include files](#technical-limitations-of-include-files)
+  - [Tabs](#tabs)
+    - [Linking into tabbed content](#linking-into-tabbed-content)
 - [Terminology and word usage](#terminology-and-word-usage)
 
 ## Style and tone
@@ -61,11 +112,17 @@ CockroachDB docs should be helpful, humble, positive, and friendly. To achieve t
 
 Other general guidance about language and tone:
 
-- For [reference and general task-based docs](#reference-and-task-based-docs), use the second-person imperative present tense, also known as "[imperative mood](https://en.wikipedia.org/wiki/Imperative_mood)." These docs should be straightforward and conventional.
+- For [reference and general task-based docs](#reference-and-task-based-docs), use the second-person imperative present tense, also known as the "[imperative mood](https://www.grammar-monster.com/glossary/imperative_mood.htm)." These docs should be straightforward and conventional.
 
     **Example:** In a new terminal, as the `root` user, use the `cockroach user` command to create a new user, `maxroach`.
 
     **Example:** Now that you have a database, user, and a table, run the following code to insert rows into the table.
+
+- Recommended usage of the personal pronoun "we": 
+
+    - "We" can be used to describe the group of people developing CockroachDB, instead of "Cockroach Labs," only when it is clear who "we" is referring to.
+    - Do not use "we" in place of "CockroachDB" for when you are talking about something the _product_ does or supports.
+    - Do not use "we" in tutorials. See the next bullet for more on tutorials and examples. 
 
 - For [tutorials and examples](#tutorials-and-examples), we recommend you use the second-person point of view (e.g., you). These docs should be more casual and conversational, as if they are teaching the user, but still straightforward and clear.
 
@@ -75,6 +132,8 @@ Other general guidance about language and tone:
 - Use simple and direct language. Grammar can be incorrect to save simplicity (e.g., many descriptions in [reference docs](#reference-and-task-based-docs) are phrases).
 
     **Example:** `table name`: The name of the table to create audit logs for.
+
+- Avoid using "please" when giving an instruction, except when asking the user to go outside the scope of the task (such as contacting Cockroach Labs or filing a support issue).
 
 - To expand upon the idea of "free from hyperbolic language", avoid the use of the word "simple" (along with "just", "easily", "actually", etc.) since it's not really possible to tell what might be easy or hard for the user. Something you think is simple may be challenging for them.
 
@@ -135,7 +194,7 @@ Avoid violent or harmful terms.
 
 - Replace "_kill_" with **terminate**
 - Replace "_hit_ Enter" with **press Enter**.
-- Replace "_hit_ your spend limit" with **reach your spend limit**
+- Replace "_hit_ your resource limits" with **reach your resource limits**
 - Replace "_hit_ an error" with **experience an error**.
 - Replace "performance _hit_" with **reduced performance**.
 - Replace "want to _hit_ up" with **want to visit**.
@@ -183,6 +242,7 @@ Avoid using socially-charged terms for features and technical concepts.
 - Don't use end punctuation (e.g., periods or colons) in headings.
 - Use periods at the end of list items if they are sentences or complete a sentence.
 - Use the [Oxford (a.k.a. serial) comma](https://en.wikipedia.org/wiki/Serial_comma).
+- Append singular possessive nouns with `'s`, including when they end with `s`. For example, `Cockroach Labs's`.
 - Ensure commas and periods are inside quotation marks, e.g., _CockroachDB's availability model is described as "Multi-Active Availability."_ Place other punctuation outside quotation marks, e.g., _What is "Multi-Active Availability"?_ . When any type of punctuation is part of a quote, place it inside the quotation marks, e.g., _To phrase it in the form of a question: "Who are the top 10 users by number of rides on a given date?"_.
 - Avoid using slashes `/` and ampersands `&` as conjunctions in place of **or** and **and** respectively, unless space is very limited (e.g., in a table).
 - Avoid using _and/or_ unless space is very limited (e.g., in a table). Instead, decide whether **and** or **or** can stand alone or make use of **both** when the inclusivity must be explicit, e.g., **x or y or both**.
@@ -323,9 +383,9 @@ A _glossary_ is a collection (usually in tabular form) of [definitions](#definit
 - [Architecture Glossary](https://www.cockroachlabs.com/docs/v21.2/architecture/overview.html#glossary)
 - [Cockroach Cloud Concepts](https://www.cockroachlabs.com/docs/cockroachcloud/architecture.html#cockroachdb-cloud-terms)
 
-### Prerequisites
+### Before you begin
 
-A _prerequisites_ section describes conditions that must be satisfied before starting a [task](#task) or [tutorial](#tutorial).
+The "Before you begin" section describes any knowledge, consideration, or conditions that the user should be aware of before starting a [task](#task) or [tutorial](#tutorial). These may be setup requirements or contextual information that's helpful to the task.
 
 ### See also
 
@@ -355,7 +415,7 @@ A tutorial helps users quickly achieve competence in a CockroachDB feature or un
 
   **Example:** Stream a Changefeed to Snowflake
 
-- The first section describes [prerequisites](#prerequisites). Heading title: **Before you begin** or **Prerequisites**.
+- The first section describes requirements and knowledge necessary or helpful for the user [before starting the tutorial](#before-you-begin). Heading title: **Before you begin**.
 - Subsequent headings are **Step 1. \<Imperative verb\> a \<noun\>**, **Step 2. \<Imperative verb\> a \<noun\>**, etc., each containing a small ordered list of steps. Within each **Step**, limit the number of steps. Aim for the heuristic maximum of 10 steps.
 - Tutorials should be written in a conversational [tone](#language-and-tone), as if it is teaching the user.
 - The instructions should be prescriptive (i.e., tell the user exactly what to do).
@@ -475,6 +535,8 @@ Do not use underlined text in CockroachDB docs. If it seems beneficial to emphas
 ### Links
 
 Whenever a CockroachDB feature is referenced, provide a link to the relevant documentation. You can also provide links to external resources, but only if the resource is confirmed to be accurate by a technical reviewer or the author is a Cockroach Labs SME and no CockroachDB documentation covers the topic.
+
+Avoid using non-descriptive link names such as `here`, `this page`, or `go`.
 
 Use Markdown reference-style links when several parts of the same page refer to the same target URL (e.g., [Release Notes](releases/v22.1.html)).
 
@@ -680,6 +742,9 @@ All product names except CockroachDB should be written as Liquid variables unles
 - **CockroachDB Self-Hosted** : `{{ site.data.products.core }}`
 - **CockroachDB Cloud** : `{{ site.data.products.db }}`
 
+
+The first occurrence of a product name within a docs page should use full name. Discretionarily, subsequent occurrences may be shortened to “Dedicated”, “Serverless”, "Cloud", or "Self-Hosted", unless a writer (or reviewer) senses contextual ambiguity that could be improved by using the full product name. In long pages, it may be helpful to use the full name for each occurrence in a new sentence or if it's been a few paragraphs since an occurrence of the full product name.
+
 ### Code
 
 You can mark up code [inline](#inline-code) or as a [code block](#code-blocks).
@@ -716,7 +781,7 @@ Start shell code samples with `~~~ shell` followed by a line break. The first ch
 
 SQL code samples are broken into two sections: commands and responses.
 
-- **Commands** (e.g., `SELECT`, `CREATE TABLE`) should begin with `~~~ sql` followed by a line break. The first character of the next line must be the terminal marker `>`. Commands should be properly capitalized, and there should be only one command per code sample.
+- **Commands** (e.g., `SELECT`, `CREATE TABLE`) should begin with `~~~ sql` followed by a line break. Commands should be properly capitalized, and there should be only one command per code sample.
 
 - **Responses** (e.g., retrieved tables) should begin with `~~~` but should **not** be syntax highlighted.
 
@@ -953,6 +1018,21 @@ To nest a list under a list item, start the list on the next line (no empty line
     - This is a bullet.
 ```
 
+Nested ordered lists work similarly:
+
+```
+1. This is a step.
+    1. This is a substep.
+    1. This is a substep.
+    1. This is a substep.
+
+1. This is a step.
+
+    This is a nested paragraph.
+    1. This is a substep.
+    1. This is a substep.
+```
+
 #### Nest paragraphs or code blocks
 
 To nest a paragraph or code block under a list item, insert an empty line and then indent the paragraph or code block 4 spaces, for example:
@@ -990,6 +1070,38 @@ Similarly, to nest a paragraph or code block under a **nested** list item, inser
 1. This is a step.
 ```
 
+#### Use ordered lists when there are multiple steps in a section
+
+Don't use prose to describe multiple steps within a section. Instead, use an ordered list. If a topic introduces actions the user performs with "First, ..." and "Next, ..." you should make these an ordered list.
+
+**Incorrect**
+
+First, run this command:
+
+~~~ shell
+command1 --option
+~~~
+
+Then, run another command:
+
+~~~ shell
+command2 myfile.yaml
+~~~
+
+**Correct**
+
+1. Run this command:
+
+    ~~~ shell
+    command1 --option
+    ~~~
+
+1. Run another command:
+
+    ~~~ shell
+    command2 myfile.yaml
+    ~~~
+
 ### Images
 
 Use images to clarify a topic, but only use them as needed. Images are either:
@@ -1007,6 +1119,26 @@ Use the following HTML and Liquid to include an image in a Markdown page:
 ~~~
 
 Example: [Decommission Nodes](https://www.cockroachlabs.com/docs/stable/remove-nodes.html#step-1-check-the-node-before-decommissioning)
+
+<a name="videos"></a>
+
+### Videos
+
+Like images, use videos to clarify a topic, but only use them as needed. Typically, videos should be hosted on the official [CockroachDB YouTube page](https://www.youtube.com/@cockroachdb) and are surfaced by our Marketing team.
+
+Use the following Liquid to include an embedded video in a Markdown page:
+
+~~~ md
+{% include_cached youtube.html video_id="<YouTube ID>" [widescreen=true] %}
+~~~
+
+The `video_id` parameter is required and is whatever is after the `?v=` portion of the URL. If the URL to the video you wish to embed is `https://www.youtube.com/watch?v=5kiMg7GXAsY`, for example, then the value of `video_id` should be `5kiMg7GXAsY`. The `widescreen` parameter is optional and meant for videos with wide banners such as our video on [Foreign Key Constraints](https://www.youtube.com/watch?v=5kiMg7GXAsY).
+
+You can optionally pass in a start time to the `video_id` parameter to make the video start at a specific timestamp. The below example embeds the [How to Create Tables with Foreign Keys in SQL](https://www.youtube.com/watch?v=mFQk1VsIkZA) video and starts playing it at 25 seconds:
+
+~~~ md
+{% include_cached youtube.html video_id="mFQk1VsIkZA?start=25" %}
+~~~
 
 <a name="include-files"></a>
 
@@ -1103,14 +1235,14 @@ The general process to follow and use this is as follows:
 2. Create an include Markdown file within `_includes/<CRDB version>/filter-tabs` with the following structure:
     ```
     {% assign tab_names_html = "Tab Name 1;Tab Name 2;Tab Name 3" %}
-    {% assign html_page_names = "page-name-1.html;page-name-2.html;page-name-3.html" %}
+    {% assign html_page_filenames = "page-name-1.html;page-name-2.html;page-name-3.html" %}
 
-    {% include filter-tabs.md tab_names=tab_names_html page_names=html_page_names page_folder=<CRDB version> %}
+    {% include filter-tabs.md tab_names=tab_names_html page_filenames=html_page_filenames page_folder=<CRDB version> %}
     ```
     - `tab_names_html` is a semicolon-separated list of the HTML-supported tab names.
-    - `html_page_names` is a semicolon-separated list of the page filenames with the `.html` extension.
+    - `html_page_filenames` is a semicolon-separated list of the page filenames with the `.html` extension.
     - `<crdb_version>` is `"cockroachcloud"` (with quotes) for any CockroachDB Cloud docs and `page.version.version` (without quotes) for any versioned docs (v21.2 and later).
-3. For each page listed in `html_page_names`, paste `{% include <CRDB version>/filter-tabs/<filter-tab-include>.html %}` in the position where you want the tabs to be included.
+3. For each page listed in `html_page_filenames`, paste `{% include <CRDB version>/filter-tabs/<filter-tab-include>.html %}` in the position where you want the tabs to be included.
   
 #### Technical limitations of include files
 
@@ -1119,6 +1251,76 @@ Include files have the following technical limitations:
 - They cannot be used in [Markdown tables](#tables). For example, this is why [the guidance about how to use version tags in tables](#version-tags-tables) is provided.
 - A [remote include](#remote-includes) file in another repo that contains an [include file](#include-files) that references something in `cockroachdb/docs` will fail to pull in and render that include file.
 - Include files containing a paragraph followed by a code block do not render correctly in the context of both paragraphs and lists in the files they are included from due to a limitation in our [Markdown](#markdown) renderer.
+
+<a name="tabs"></a>
+
+### Tabs
+  
+To allow your reader to select from two or more versions of on-page content, use a tabset. This might be appropriate for:
+  - Install procedurals with different steps for the different supported platforms (like macOS, Windows, Linux).
+  - Reference material where the Enterprise and non-Enterprise versions of a feature differ.
+  - Demonstrating how to connect from an example application in each supported programming language (like Python, C++, Java, etc.).
+
+To add tabs to your copy, you first define the tabset for use later on the page, then you declare each tab's content within each tab.
+
+To define the tabset:
+
+```
+<div class="filters clearfix">
+  <button class="filter-button" data-scope="macos-install-steps">macOS</button>
+  <button class="filter-button" data-scope="windows-install-steps">Windows</button>
+</div>
+```
+
+This example defines two tabs (named `macOS` and `Windows`) and defines a unique `data-scope` for each (`macos-install-steps` and `windows-install-steps` respectively).
+
+Then, to declare the content within each tab:
+  
+```
+<section class="filter-content" markdown="1" data-scope="macos-install-steps">
+
+1. To install CockroachDB on macOS, first you need to ...
+...
+</section>
+
+<section class="filter-content" markdown="1" data-scope="windows-install-steps">
+
+1. To install CockroachDB on Windows, first you need to ...
+...
+</section>
+
+## This section outside of tabs
+
+```
+
+Now the user can freely switch between the `macOS` and `Windows` tabs as needed. 
+
+Tip: Do your tabs share a lot of common content betwen them? Tabs are often a great place to make use of [include files](#include-files)!
+
+#### Linking into tabbed content
+
+To link to content that is contained within a tab, add the `filter` component to your link, specifying the `data-scope` you provided in your tabset definition. You can do this in the following two ways:
+
+- To link to the top of a target page, with a specific tab selected:
+
+  ```
+  [Core changefeeds](create-and-configure-changefeeds.html?filters=core)
+  ```
+
+  This takes us to the top of `create-and-configure-changefeeds.html` and ensures the tab matching `data-scope: core` is selected. See [Create and Configure Changefeeds](https://www.cockroachlabs.com/docs/stable/create-and-configure-changefeeds.html?filters=core) to see this in action.
+ 
+- For linking to a header contained within a tabset:
+
+  ```
+  [Create with column families](changefeeds-on-tables-with-column-families.html?filters=core#create-a-core-changefeed-on-a-table-with-column-families)
+  ```
+  
+  This takes us directly to the `create-a-core-changefeed-on-a-table-with-column-families` header, within the `data-scope: core` tab. See [Create a Core changefeed on a table with column families](https://www.cockroachlabs.com/docs/stable/changefeeds-on-tables-with-column-families.html?filters=core#create-a-core-changefeed-on-a-table-with-column-families) to see this in action.
+
+Considerations:
+
+- If you intend to link to a header present on two or more tabsets on the same page, the header targets must be uniquely named. If you require identical header names, use explicit, unique HTML anchor names for each (in form `<a name="uniquename"></a>` as shown under [Links](#links).
+- For the first-defined tab, specifying its `filter` value in a link is functionally the same as omitting it. For all other tabs, the explicit filter name is required. You can think of this first tab as the "default" tab in this context: if not otherwise specificed, Jekyll will always open with the first tab's contents displayed.
 
 ## Terminology and word usage
 

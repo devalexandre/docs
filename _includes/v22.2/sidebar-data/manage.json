@@ -40,6 +40,12 @@
           "urls": [
             "/cockroachcloud/ccloud-get-started.html"
           ]
+        },
+        {
+          "title": "Provision a CockroachDB Cloud cluster using Terraform",
+          "urls": [
+            "/cockroachcloud/provision-a-cluster-with-terraform.html"
+          ]
         }
       ]
     },
@@ -91,7 +97,7 @@
       ]
     },
     {
-      "title": "Back Up and Restore Data",
+      "title": "Backups and Restores",
       "items": [
         {
           "title": "Backup and Restore Overview",
@@ -106,25 +112,20 @@
           ]
         },
         {
-          "title": "Back Up and Restore CockroachDB Cloud Clusters",
-          "items": [
-            {
-              "title": "Run Bulk Operations",
-              "urls": [
-                "/cockroachcloud/run-bulk-operations.html"
-              ]
-            },
-            {
-              "title": "Restore Data from a Backup",
-              "urls": [
-                "/cockroachcloud/backups-page.html"
-              ]
-            }
+          "title": "Managed-Service Backups",
+          "urls": [
+            "/cockroachcloud/use-managed-service-backups.html"
           ]
         },
         {
-          "title": "Back Up and Restore CockroachDB Self-Hosted Clusters",
+          "title": "Customer-Owned Backups",
           "items": [
+            {
+              "title": "Take and Restore Customer-Owned Backups on CockroachDB Cloud",
+              "urls": [
+                "/cockroachcloud/take-and-restore-customer-owned-backups.html"
+              ]
+            },
             {
               "title": "Full and Incremental Backups",
               "urls": [
@@ -154,30 +155,59 @@
               "urls": [
                 "/${VERSION}/manage-a-backup-schedule.html"
               ]
+            },
+            {
+              "title": "Backup Validation",
+              "urls": [
+                "/${VERSION}/backup-validation.html"
+              ]
+            },
+            {
+              "title": "Backup and Restore Monitoring",
+              "urls": [
+              "/${VERSION}/backup-and-restore-monitoring.html"
+              ]
             }
+          ]
+        },
+        {
+          "title": "Restoring Backups Across Versions",
+          "urls": [
+            "/${VERSION}/restoring-backups-across-versions.html"
           ]
         }
       ]
     },
     {
-      "title": "File Storage for Bulk Operations",
+      "title": "File Storage",
       "items": [
         {
           "title": "Cloud Storage",
-          "urls": [
-            "/${VERSION}/use-cloud-storage-for-bulk-operations.html"
+          "items": [
+            {
+              "title": "Use Cloud Storage",
+              "urls": [
+                "/${VERSION}/use-cloud-storage.html"
+              ]
+            },
+            {
+              "title": "Cloud Storage Authentication",
+              "urls": [
+                "/${VERSION}/cloud-storage-authentication.html"
+              ]
+            }
           ]
         },
         {
           "title": "Userfile Storage",
           "urls": [
-            "/${VERSION}/use-userfile-for-bulk-operations.html"
+            "/${VERSION}/use-userfile-storage.html"
           ]
         },
         {
           "title": "Local File Server",
           "urls": [
-            "/${VERSION}/use-a-local-file-server-for-bulk-operations.html"
+            "/${VERSION}/use-a-local-file-server.html"
           ]
         }
       ]
@@ -187,7 +217,14 @@
       "items": [
         {
           "title": "Secure CockroachDB Cloud Clusters",
+          "urls": ["/cockroachcloud/security-overview.html"],
           "items": [
+            {
+              "title": "Create Private Clusters",
+              "urls": [
+                "/cockroachcloud/private-clusters.html"
+              ]
+            },
             {
               "title": "Customer-Managed Encryption Keys (CMEK) for CockroachDB Dedicated",
               "urls": [],
@@ -211,7 +248,7 @@
                   ]
                 },
                 {
-                  "title": "Customer-Managed Encryption Keys (CMEK) Frequently Asked Questions (FAQ)",
+                  "title": "FAQs",
                   "urls": [
                     "/cockroachcloud/cmek-faq.html"
                   ]
@@ -219,23 +256,46 @@
               ]
             },
             {
-              "title": "Authenticating to CockroachDB Cloud",
-              "urls": [
-                "/cockroachcloud/authentication.html"
-              ]
-            },
-            {
-              "title": "Single Sign-On (SSO) for CockroachDB Cloud",
-              "urls": [
-                "/cockroachcloud/cloud-sso.html"
-              ]
-            },
-            {
-              "title": "User Authorization",
-              "urls": [
-                "/cockroachcloud/user-authorization.html"
-              ]
-            },
+							"title": "Authentication",
+								"items": [
+									{
+										"title": "Authentication Overview",
+										"urls": [
+											"/cockroachcloud/authentication.html"
+										]
+									},
+									{
+										"title": "Single Sign-On (SSO) for CockroachDB Cloud Organizations",
+										"urls": [
+											"/cockroachcloud/cloud-org-sso.html"
+										]
+									},
+									{
+										"title": "Configure Cloud Organization SSO",
+										"urls": [
+											"/cockroachcloud/configure-cloud-org-sso.html"
+										]
+									},
+                  {
+										"title": "Configure SCIM provisioning",
+										"urls": [
+											"/cockroachcloud/configure-scim-provisioning.html"
+										]
+									},
+                  {
+                    "title": "Cluster Single Sign-On (SSO) using CockroachDB Cloud Console",
+                    "urls": [
+                      "/cockroachcloud/cloud-sso-sql.html"
+                    ]
+                  },
+                  {
+                    "title": "Certificate Authentication for SQL Clients in CockroachDB Dedicated Clusters",
+                    "urls": [
+                      "/cockroachcloud/client-certs-dedicated.html"
+                    ]
+                  }
+								]
+      	    },
             {
               "title": "Network Authorization",
               "urls": [
@@ -249,9 +309,21 @@
               ]
             },
             {
-              "title": "Manage Console Access",
+              "title": "Export Cloud Organization Audit Logs",
               "urls": [
-                 "/cockroachcloud/console-access-management.html"
+                "/cockroachcloud/cloud-org-audit-logs.html"
+              ]
+            },
+            {
+              "title": "CockroachDB Cloud Access Management Overview and FAQ",
+              "urls": [
+                "/cockroachcloud/authorization.html"
+              ]
+            },
+            {
+              "title": "Managing Access in CockroachDB Cloud",
+              "urls": [
+                 "/cockroachcloud/managing-access.html"
               ]
             }
           ]
@@ -319,9 +391,15 @@
               ]
             },
             {
-              "title": "Single Sign-on",
+              "title": "Cluster Single Sign-on (SSO) using JSON web tokens (JWT)",
               "urls": [
-                "/${VERSION}/sso.html"
+                "/${VERSION}/sso-sql.html"
+              ]
+            },
+            {
+              "title": "Single Sign-on (SSO) for DB Console",
+              "urls": [
+                "/${VERSION}/sso-db-console.html"
               ]
             },
             {
@@ -370,9 +448,15 @@
               ]
             },
             {
-              "title": "Monitoring Page",
+              "title": "Tools Page",
               "urls": [
-                "/cockroachcloud/monitoring-page.html"
+                "/cockroachcloud/tools-page.html"
+              ]
+            },
+            {
+              "title": "Metrics Page",
+              "urls": [
+                "/cockroachcloud/metrics-page.html"
               ]
             },
             {
@@ -391,6 +475,12 @@
               "title": "Transactions Page",
               "urls": [
                 "/cockroachcloud/transactions-page.html"
+              ]
+            },
+            {
+              "title": "Insights Page",
+              "urls": [
+                "/cockroachcloud/insights-page.html"
               ]
             },
             {
@@ -452,19 +542,25 @@
               ]
             },
             {
-              "title": "Monitor with Datadog",
+             "title": "Export Metrics From a {{ site.data.products.dedicated }} Cluster",
+             "urls": [
+               "/cockroachcloud/export-metrics.html"
+             ]
+           },
+            {
+              "title": "Monitor {{ site.data.products.core }} with Datadog",
               "urls": [
                 "/${VERSION}/datadog.html"
               ]
             },
             {
-              "title": "Monitor with DBmarlin",
+              "title": "Monitor {{ site.data.products.core }} with DBmarlin",
               "urls": [
                 "/${VERSION}/dbmarlin.html"
               ]
             },
             {
-              "title": "Monitor with Kibana",
+              "title": "Monitor {{ site.data.products.core }} with Kibana",
               "urls": [
                 "/${VERSION}/kibana.html"
               ]
@@ -516,6 +612,12 @@
                   "title": "Upgrade Policy",
                   "urls": [
                      "/cockroachcloud/upgrade-policy.html"
+                  ]
+                },
+                {
+                  "title": "Upgrade to v22.2",
+                  "urls": [
+                     "/cockroachcloud/upgrade-to-v22.2.html"
                   ]
                 },
                 {

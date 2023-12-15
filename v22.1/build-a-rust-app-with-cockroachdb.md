@@ -48,7 +48,7 @@ The `main` function is the entry point for the application, with the code for co
 The `execute_txn` function wraps database operations in the context of an explicit transaction. If a [retry error](transaction-retry-error-reference.html) is thrown, the function will retry committing the transaction, with [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff), until the maximum number of retries is reached (by default, 15).
 
 {{site.data.alerts.callout_info}}
-CockroachDB may require the [client to retry a transaction](transactions.html#transaction-retries) in case of read/write contention. CockroachDB provides a generic <strong>retry function</strong> that runs inside a transaction and retries it as needed. You can copy and paste the retry function from here into your code.
+CockroachDB may require the [client to retry a transaction](transactions.html#transaction-retries) in case of read/write [contention](performance-best-practices-overview.html#transaction-contention). CockroachDB provides a generic <strong>retry function</strong> that runs inside a transaction and retries it as needed. You can copy and paste the retry function from here into your code.
 {{site.data.alerts.end}}
 
 {% include_cached copy-clipboard.html %}
@@ -94,11 +94,11 @@ The `transfer_funds` function calls `execute_txn` to perform the actual transfer
         For example:
 
         ~~~
-        postgresql://maxroach:ThisIsNotAGoodPassword@free-tier4.aws-us-west-2.cockroachlabs.cloud:26257/bank?options=--cluster%3Ddim-dog-147&sslmode=require
+        postgresql://maxroach:ThisIsNotAGoodPassword@dim-dog-147.6wr.cockroachlabs.cloud:26257/bank?sslmode=require
         ~~~
 
     
-    2. Set the `DATABASE_URL` environment variable to the modified connection string.
+    1. Set the `DATABASE_URL` environment variable to the modified connection string.
     
         {% include_cached copy-clipboard.html %}
         ~~~ shell
@@ -111,7 +111,7 @@ The `transfer_funds` function calls `execute_txn` to perform the actual transfer
 
     The app uses the connection string saved to the `DATABASE_URL` environment variable to connect to your cluster and execute the code.
 
-2. Run the code to create a table and insert some rows:
+1. Run the code to create a table and insert some rows:
 
     {% include_cached copy-clipboard.html %}
     ~~~ shell

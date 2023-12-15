@@ -5,7 +5,7 @@ toc: true
 docs_area: manage
 ---
 
-Now that [CockroachDB v20.2](../releases/v20.2.html#v20-2-0) is available, your [Console Admin](console-access-management.html#console-admin) can upgrade your cluster directly from the {{ site.data.products.db }} Console. This page walks through the process.
+Now that [CockroachDB v20.2](../releases/v20.2.html#v20-2-0) is available, your [Org Administrator](authorization.html#org-administrator-legacy) can upgrade your cluster directly from the {{ site.data.products.db }} Console. This page walks through the process.
 
 ## Step 1. Verify that you can upgrade
 
@@ -45,7 +45,7 @@ Approximately 72 hours after the node has been restarted, the upgrade will be au
 
 ### Prepare for brief unavailability
 
-Because your cluster will be unavailable while its single node is stopped and restarted with v20.2, prepare your application for this brief downtime, typically a few minutes. Also during this time, the [**SQL Users**](user-authorization.html#create-a-sql-user) and [**Monitoring**](monitoring-page.html) tabs in the {{ site.data.products.db }} Console will be disabled.
+Because your cluster will be unavailable while its single node is stopped and restarted with v20.2, prepare your application for this brief downtime, typically a few minutes. Also during this time, the [**SQL Users**](managing-access.html#create-a-sql-user) and [**Tools**](tools-page.html) tabs in the {{ site.data.products.db }} Console will be disabled.
 
 </section>
 
@@ -59,11 +59,11 @@ To start the upgrade process:
 
 1. [Sign in](https://cockroachlabs.cloud/) to your {{ site.data.products.db }} account.
 
-2. In the **Clusters** list, select the cluster you want to upgrade.
+1. In the **Clusters** list, select the cluster you want to upgrade.
 
-3. Select **Actions > Upgrade cluster**.
+1. Select **Actions > Upgrade cluster**.
 
-4. On the **Upgrade your cluster** dialog, confirm that you have reviewed the pre-upgrade guidance and then click **Start Upgrade**.
+1. On the **Upgrade your cluster** dialog, confirm that you have reviewed the pre-upgrade guidance and then click **Start Upgrade**.
 
 <section class="filter-content" markdown="1" data-scope="multi-node">
 As mentioned earlier, your cluster will be upgraded one node at a time without interrupting the cluster's overall health and availability. This "rolling upgrade" approach will take approximately 4-5 minutes per node.
@@ -79,7 +79,7 @@ Once your cluster is running v20.2, you will have approximately 72 hours before 
 
 ### Monitor your application
 
-Use the [DB Console](monitoring-page.html) or your own tooling to monitor your application for any unexpected behavior.
+Use the [DB Console](tools-page.html) or your own tooling to monitor your application for any unexpected behavior.
 
 - If everything looks good, you can wait for the upgrade to automatically finalize or you can [trigger finalization more quickly](#finalize-the-upgrade).
 

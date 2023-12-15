@@ -14,7 +14,7 @@ To filter the sessions, click the **Filters** field.
 - To filter by username or session status, select **User Name** or **Session Status** and check one or more checkboxes.
 - To filter by session duration, specify the session time and unit.
 
-Click <img src="{{ 'images/common/ui-columns-button.png' | relative_url }}" alt="Column selector" /> to select the columns to display in the table.
+Click **Columns** to select the columns to display in the table.
 
 The following properties are displayed for each session:
 
@@ -31,7 +31,7 @@ Memory Usage | Amount of memory currently allocated to the session followed by t
 Client IP Address | The IP address and port of the client that opened the session.
 User Name | The user that opened the session.
 Application Name | The application that ran the session.
-Actions | Options to cancel the active statement and cancel the session. These require the `CANCELQUERY` [role option]({{ link_prefix }}alter-role.html#role-options).<ul><li>**Cancel Statement:** Ends the SQL statement. The session running this statement will receive an error. </li> <li>**Cancel Session:** Ends the session. The client that holds this session will receive a "connection terminated" event.</li></ul>
+Actions | Options to cancel the active statement and cancel the session. These require the `CANCELQUERY` [system privilege]({{ link_prefix }}security-reference/authorization.html#supported-privileges) (or the legacy `CANCELQUERY` [role option]({{ link_prefix }}alter-role.html#role-options)).<ul><li>**Cancel Statement:** Ends the SQL statement. The session running this statement will receive an error. </li> <li>**Cancel Session:** Ends the session. The client that holds this session will receive a "connection terminated" event.</li></ul>
 
 To view details of a session, click a **Session Start Time (UTC)** to display session details.
 
@@ -71,7 +71,7 @@ The **Cancel session** button ends the session. The client that holds this sessi
 
 - **Most Recent Transaction Fingerprints Executed**
 
-  A list of the most recent transaction fingerprint IDs, represented in hexadecimal, executed by this session. The fingerprint ID is a link to the [Transaction Details page](ui-transactions-page.html#transaction-details-page) for the transaction. When you click the link, in order to fetch and render the transaction details, the global date range is changed to the session's start and end time.
+  A list of the most recent transaction fingerprint IDs, represented in hexadecimal, executed by this session. The fingerprint ID is a link to the [Transaction Details page]({{ link_prefix }}ui-transactions-page.html#transaction-details-page) for the transaction. When you click the link, in order to fetch and render the transaction details, the global date range is changed to the session's start and end time.
 
 ## See also
 
@@ -81,5 +81,5 @@ The **Cancel session** button ends the session. The client that holds this sessi
 - [Transactions]({{ link_prefix }}transactions.html)
 - [Transaction Error Retry Reference]({{ link_prefix }}transaction-retry-error-reference.html)
 {% if page.cloud != true %}
-- [Production Checklist](recommended-production-settings.html#hardware)
+- [Production Checklist]({{ link_prefix }}recommended-production-settings.html#hardware)
 {% endif %}

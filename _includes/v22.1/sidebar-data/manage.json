@@ -103,15 +103,15 @@
           "title": "Back Up and Restore CockroachDB Cloud Clusters",
           "items": [
             {
-              "title": "Run Bulk Operations",
+              "title": "Take and Restore Customer-Owned Backups",
               "urls": [
-                "/cockroachcloud/run-bulk-operations.html"
+                "/cockroachcloud/take-and-restore-customer-owned-backups.html"
               ]
             },
             {
-              "title": "Restore Data from a Backup",
+              "title": "Use Managed-Service Backups",
               "urls": [
-                "/cockroachcloud/backups-page.html"
+                "/cockroachcloud/use-managed-service-backups.html"
               ]
             }
           ]
@@ -150,6 +150,12 @@
               ]
             }
           ]
+        },
+        {
+          "title": "Restoring Backups Across Versions",
+          "urls": [
+            "/${VERSION}/restoring-backups-across-versions.html"
+          ]
         }
       ]
     },
@@ -181,6 +187,7 @@
       "items": [
         {
           "title": "Secure CockroachDB Cloud Clusters",
+          "urls": ["/cockroachcloud/security-overview.html"],
           "items": [
             {
               "title": "Customer-Managed Encryption Keys (CMEK) for CockroachDB Dedicated",
@@ -213,23 +220,34 @@
               ]
             },
             {
-              "title": "Authenticating to CockroachDB Cloud",
-              "urls": [
-                "/cockroachcloud/authentication.html"
-              ]
-            },
-            {
-              "title": "Single Sign-On (SSO) for CockroachDB Cloud",
-              "urls": [
-                "/cockroachcloud/cloud-sso.html"
-              ]
-            },
-            {
-              "title": "User Authorization",
-              "urls": [
-                "/cockroachcloud/user-authorization.html"
-              ]
-            },
+							"title": "Authentication",
+								"items": [
+									{
+										"title": "Authentication Overview",
+										"urls": [
+											"/cockroachcloud/authentication.html"
+										]
+									},
+									{
+										"title": "Single Sign-On (SSO)",
+										"urls": [
+											"/cockroachcloud/cloud-org-sso.html"
+										]
+									},
+									{
+										"title": "Configure Cloud Organization SSO",
+										"urls": [
+											"/cockroachcloud/configure-cloud-org-sso.html"
+										]
+									},
+                  {
+                    "title": "Certificate Authentication for SQL Clients in CockroachDB Dedicated Clusters",
+                    "urls": [
+                      "/cockroachcloud/client-certs-dedicated.html"
+                    ]
+                  }
+								]
+      	    },
             {
               "title": "Network Authorization",
               "urls": [
@@ -243,9 +261,21 @@
               ]
             },
             {
-              "title": "Manage Console Access",
+              "title": "Export Cloud Organization Audit Logs",
               "urls": [
-                 "/cockroachcloud/console-access-management.html"
+                "/cockroachcloud/cloud-org-audit-logs.html"
+              ]
+            },
+            {
+              "title": "CockroachDB Cloud Access Management Overview and FAQ",
+              "urls": [
+                "/cockroachcloud/authorization.html"
+              ]
+            },
+            {
+              "title": "Managing Access in CockroachDB Cloud",
+              "urls": [
+                 "/cockroachcloud/managing-access.html"
               ]
             }
           ]
@@ -364,9 +394,9 @@
               ]
             },
             {
-              "title": "Monitoring Page",
+              "title": "Tools Page",
               "urls": [
-                "/cockroachcloud/monitoring-page.html"
+                "/cockroachcloud/tools-page.html"
               ]
             },
             {
@@ -440,7 +470,7 @@
               ]
             },
             {
-              "title": "Monitor with Datadog",
+              "title": "Monitor {{ site.data.products.core }} with Datadog",
               "urls": [
                 "/${VERSION}/datadog.html"
               ]

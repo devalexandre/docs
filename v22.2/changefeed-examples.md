@@ -37,7 +37,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
 
 1. If you do not already have one, [request a trial {{ site.data.products.enterprise }} license](enterprise-licensing.html).
 
-2. Use the [`cockroach start-single-node`](cockroach-start-single-node.html) command to start a single-node cluster:
+1. Use the [`cockroach start-single-node`](cockroach-start-single-node.html) command to start a single-node cluster:
 
     {% include_cached copy-clipboard.html %}
     ~~~ shell
@@ -93,7 +93,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
     ~~~
     ~~~
 
-            job_id       
+            job_id
     +--------------------+
       360645287206223873
     (1 row)
@@ -240,7 +240,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
     {% include {{ page.version.version }}/cdc/confluent-cloud-sr-url.md %}
 
     ~~~
-            job_id       
+            job_id
     +--------------------+
       360645287206223873
     (1 row)
@@ -322,7 +322,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
 ## Create a changefeed connected to a Google Cloud Pub/Sub sink
 
 {{site.data.alerts.callout_info}}
-The Google Cloud Pub/Sub sink is currently in **beta**.
+{% include feature-phases/preview.md %}
 {{site.data.alerts.end}}
 
 In this example, you'll set up a changefeed for a single-node cluster that is connected to a [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/docs/overview) sink. The changefeed will watch a table and send messages to the sink.
@@ -395,11 +395,20 @@ You'll need access to a [Google Cloud Project](https://cloud.google.com/resource
     gcloud iam service-accounts keys create key.json --iam-account=cdc-demo@cockroach-project.iam.gserviceaccount.com
     ~~~
 
-    Next, base64 encode your credentials key:
+    Next, base64 encode your credentials key using the command specific to your platform.
+
+    If you're working on macOS:
 
     {% include_cached copy-clipboard.html %}
     ~~~ shell
     cat key.json | base64
+    ~~~
+
+    If you're working on Linux, run the following to ensure that lines are not wrapped in the output:
+
+    {% include_cached copy-clipboard.html %}
+    ~~~ shell
+    cat key.json | base64 -w 0
     ~~~
 
     Copy the output so that you can add it to your [`CREATE CHANGEFEED`](create-changefeed.html) statement in the next step. When you create your changefeed, it is necessary that the key is base64 encoded before passing it in the URI.
@@ -408,7 +417,7 @@ You'll need access to a [Google Cloud Project](https://cloud.google.com/resource
 
     {% include_cached copy-clipboard.html %}
     ~~~ sql
-    CREATE CHANGEFEED FOR TABLE users INTO 'gcpubsub://cockroach-project?region=us-east1&topic_name=movr-users&AUTH=specified&CREDENTIALS={base64-encoded key}';
+    CREATE CHANGEFEED FOR TABLE users INTO 'gcpubsub://cockroach-project?region=us-east1&TOPIC_NAME=movr-users&AUTH=specified&CREDENTIALS={base64-encoded key}';
     ~~~
 
     The output will confirm the topic where the changefeed will emit messages to.
@@ -481,7 +490,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
     ~~~
 
     ~~~
-            job_id       
+            job_id
     +--------------------+
       360645287206223873
     (1 row)
@@ -524,7 +533,9 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
 [`CREATE CHANGEFEED`](create-changefeed.html) is an [{{ site.data.products.enterprise }}-only](enterprise-licensing.html) feature. For the Core version, see [the `CHANGEFEED FOR` example](#create-a-core-changefeed).
 {{site.data.alerts.end}}
 
-{% include {{ page.version.version }}/cdc/webhook-beta.md %}
+{{site.data.alerts.callout_info}}
+{% include feature-phases/preview.md %}
+{{site.data.alerts.end}}
 
  In this example, you'll set up a changefeed for a single-node cluster that is connected to a local HTTP server via a webhook. For this example, you'll use an [example HTTP server](https://github.com/cockroachlabs/cdc-webhook-sink-test-server/tree/master/go-https-server) to test out the webhook sink.
 
@@ -583,7 +594,7 @@ In this example, you'll set up a changefeed for a single-node cluster that is co
 
     {% include_cached copy-clipboard.html %}
     ~~~sql
-    CREATE CHANGEFEED FOR TABLE movr.vehicles INTO 'webhook-https://localhost:3000?insecure_tls_skip_verify=true' WITH updated;
+    CREATE CHANGEFEED FOR TABLE movr.vehicles INTO 'webhook-https://localhost:3000?INSECURE_TLS_SKIP_VERIFY=true' WITH updated;
     ~~~
 
     You set up a changefeed on the `vehicles` table, which emits changefeed messages to the local HTTP server.
